@@ -3,3 +3,5 @@
 ################################################################################
 
 /.vs
+/CourseProject_InventoryManagement.WebApi/obj
+/CourseProject_InventoryManagement.WebApi/bin/Debug/net8.0
