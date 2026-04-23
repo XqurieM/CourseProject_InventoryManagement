@@ -9,3 +9,5 @@
 /CourseProject_InventoryManagement.Application/bin/Debug/net8.0
 /CourseProject_InventoryManagement.Domain/bin/Debug/net8.0
 /CourseProject_InventoryManagement.Domain/obj
+/CourseProject_InventoryManagement.Infrastructure/bin/Debug/net8.0
+/CourseProject_InventoryManagement.Infrastructure/obj
