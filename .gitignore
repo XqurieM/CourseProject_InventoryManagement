@@ -11,3 +11,5 @@
 /CourseProject_InventoryManagement.Domain/obj
 /CourseProject_InventoryManagement.Infrastructure/bin/Debug/net8.0
 /CourseProject_InventoryManagement.Infrastructure/obj
+/CourseProject_InventoryManagement.Contracts/bin/Debug/net8.0
+/CourseProject_InventoryManagement.Contracts/obj
