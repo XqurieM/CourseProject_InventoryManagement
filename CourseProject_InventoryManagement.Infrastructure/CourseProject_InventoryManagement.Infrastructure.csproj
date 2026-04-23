@@ -10,4 +10,9 @@
     <Folder Include="Persistence\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\CourseProject_InventoryManagement.Application\CourseProject_InventoryManagement.Application.csproj" />
+    <ProjectReference Include="..\CourseProject_InventoryManagement.Domain\CourseProject_InventoryManagement.Domain.csproj" />
+  </ItemGroup>
+
 </Project>
