@@ -8,6 +8,6 @@ namespace CourseProject_InventoryManagement.Domain.Common
 {
     public class BaseEntity
     {
-        public int Id { get; set; }
+        public Guid Id { get; protected set; }
     }
 }

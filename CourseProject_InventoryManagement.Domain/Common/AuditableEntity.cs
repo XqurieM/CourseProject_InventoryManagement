@@ -8,9 +8,9 @@ namespace CourseProject_InventoryManagement.Domain.Common
 {
     public class AuditableEntity
     {
-        public DateTime CreatedAtUtc { get; set; }
-        public int CreatedByUserId { get; set; }
-        public DateTime UpdatedAtUtc { get; set; }
-        public int UpdatedByUserId { get; set; }
+        public DateTime CreatedAtUtc { get; protected set; }
+        public Guid CreatedByUserId { get; protected set; }
+        public DateTime? UpdatedAtUtc { get; protected set; }
+        public Guid? UpdatedByUserId { get; protected set; }
     }
 }

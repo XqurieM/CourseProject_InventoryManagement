@@ -8,8 +8,8 @@ namespace CourseProject_InventoryManagement.Domain.Common
 {
     public class SoftDeletableEntity
     {
-        public bool IsDeleted { get; set; }
+        public bool IsDeleted { get; protected set; }
 
-        public DateTime DeletedAtUtc { get; set; }
+        public DateTime? DeletedAtUtc { get; protected set; }
     }
 }
