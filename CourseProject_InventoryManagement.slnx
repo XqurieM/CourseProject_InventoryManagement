@@ -1,4 +1,5 @@
 <Solution>
   <Project Path="CourseProject_InventoryManagement.Application/CourseProject_InventoryManagement.Application.csproj" Id="ebc4c27f-f7cf-43ed-894e-0890638caff4" />
+  <Project Path="CourseProject_InventoryManagement.Domain/CourseProject_InventoryManagement.Domain.csproj" Id="561c3e3a-3fbd-46fc-91c6-065e6f1f42bb" />
   <Project Path="CourseProject_InventoryManagement.WebApi/CourseProject_InventoryManagement.WebApi.csproj" Id="e5691c82-3071-440e-bf9f-9d4ba13d471e" />
 </Solution>
