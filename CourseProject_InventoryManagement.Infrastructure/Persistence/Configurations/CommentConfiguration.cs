@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CourseProject_InventoryManagement.Infrastructure.Configurations
+namespace CourseProject_InventoryManagement.Infrastructure.Persistence.Configurations
 {
     public sealed class CommentConfiguration : IEntityTypeConfiguration<Comment>
     {

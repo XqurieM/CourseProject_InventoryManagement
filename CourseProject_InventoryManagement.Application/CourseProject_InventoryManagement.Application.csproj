@@ -11,4 +11,8 @@
     <ProjectReference Include="..\CourseProject_InventoryManagement.Domain\CourseProject_InventoryManagement.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Features\" />
+  </ItemGroup>
+
 </Project>

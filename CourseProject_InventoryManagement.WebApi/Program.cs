@@ -1,4 +1,4 @@
-using CourseProject_InventoryManagement.Infrastructure.Persistence;
+using CourseProject_InventoryManagement.Infrastructure.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);

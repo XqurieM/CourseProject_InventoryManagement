@@ -2,7 +2,7 @@
 using CourseProject_InventoryManagement.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace CourseProject_InventoryManagement.Infrastructure.Persistence;
+namespace CourseProject_InventoryManagement.Infrastructure.Persistence.Context;
 
 public class AppDbContext : DbContext
 {
