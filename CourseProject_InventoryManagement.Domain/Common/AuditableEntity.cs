@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CourseProject_InventoryManagement.Domain.Common
 {
-    public class AuditableEntity
+    public abstract class AuditableEntity : BaseEntity
     {
         public DateTime CreatedAtUtc { get; protected set; }
         public Guid CreatedByUserId { get; protected set; }

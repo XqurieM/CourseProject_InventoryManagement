@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CourseProject_InventoryManagement.Domain.Common
 {
-    public class SoftDeletableEntity
+    public abstract class SoftDeletableEntity : AuditableEntity
     {
         public bool IsDeleted { get; protected set; }
 
