@@ -1,3 +1,7 @@
+using Ardalis.Result.AspNetCore;
+using CourseProject_InventoryManagement.Application.Abstractions.Persistence;
+using CourseProject_InventoryManagement.Application.Features.CQRS;
+using CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.InventoryHandlers;
 using CourseProject_InventoryManagement.Infrastructure.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,8 +15,20 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
-var app = builder.Build();
+builder.Services.AddScoped<IAppDbContext>(provider =>
+    (IAppDbContext)provider.GetRequiredService<AppDbContext>());
+builder.Services.AddScoped<ICQRS.ICreateInventory, CreateInventoryCommandHandler>();
+builder.Services.AddScoped<ICQRS.IGetInventoryById, GetInventoryByIdQueryHandler>();
 
+// Add global result convention for Ardalis.Result
+builder.Services.AddControllers(options =>
+{
+    options.AddResultConvention(resultStatusMap => resultStatusMap
+        .AddDefaultMap()
+    );
+});
+
+var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

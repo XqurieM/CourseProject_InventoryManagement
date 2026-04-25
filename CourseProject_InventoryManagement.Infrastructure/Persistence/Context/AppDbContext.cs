@@ -1,10 +1,11 @@
-﻿using CourseProject_InventoryManagement.Domain.Common;
+﻿using CourseProject_InventoryManagement.Application.Abstractions.Persistence;
+using CourseProject_InventoryManagement.Domain.Common;
 using CourseProject_InventoryManagement.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace CourseProject_InventoryManagement.Infrastructure.Persistence.Context;
 
-public class AppDbContext : DbContext
+public class AppDbContext :DbContext, IAppDbContext
 {
     public AppDbContext(DbContextOptions<AppDbContext> options)
         : base(options)

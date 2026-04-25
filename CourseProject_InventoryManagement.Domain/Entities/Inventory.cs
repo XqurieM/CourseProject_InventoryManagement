@@ -9,13 +9,13 @@ namespace CourseProject_InventoryManagement.Domain.Entities
 {
     public class Inventory : SoftDeletableEntity
     {
-        public string Title { get; private set; } = null!;
-        public string? Description { get; private set; }
-        public Guid CategoryId { get; private set; }
-        public string? ImageUrl { get; private set; }
-        public bool IsPublic { get; private set; }
-        public byte[] RowVersion { get; private set; } = Array.Empty<byte>();
-        public Category Category { get; private set; } = null!;
+        public string Title { get; set; } = null!;
+        public string? Description { get; set; }
+        public Guid CategoryId { get; set; }
+        public string? ImageUrl { get; set; }
+        public bool IsPublic { get; set; }
+        public byte[] RowVersion { get; set; } = Array.Empty<byte>();
+        public Category Category { get; set; } = null!;
         public ICollection<InventoryField> Fields { get; set; } = new List<InventoryField>();
         public ICollection<InventoryCustomIdRule> CustomIdRules { get; set; } = new List<InventoryCustomIdRule>();
         public ICollection<InventoryAccess> Accesses { get; set; } = new List<InventoryAccess>();
