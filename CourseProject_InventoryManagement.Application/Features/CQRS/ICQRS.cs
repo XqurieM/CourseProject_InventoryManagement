@@ -22,6 +22,11 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS
         {
             Task<Result<InventoryDto>> GetInventoryById(GetInventoryByIdQuery query, CancellationToken cancellationToken = default);
         }
+
+        public interface IAddInventoryField
+        {
+            Task<Result<Guid>> AddInventoryField(AddInventoryFieldCommand command, CancellationToken cancellationToken = default);
+        }
         #endregion
     }
 }

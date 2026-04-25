@@ -8,21 +8,23 @@ using static CourseProject_InventoryManagement.Application.Features.CQRS.ICQRS;
 
 namespace CourseProject_InventoryManagement.WebApi.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]/[action]")]
     [ApiController]
     public class InventoryController : ControllerBase
     {
         private readonly ICreateInventory _createInventory;
         private readonly IGetInventoryById _getInventoryById;
+        private readonly IAddInventoryField _addInventoryField;
 
-        public InventoryController(ICreateInventory createInventory, IGetInventoryById getInventoryById)
+        public InventoryController(ICreateInventory createInventory, IGetInventoryById getInventoryById, IAddInventoryField addInventoryField)
         {
             _createInventory = createInventory;
             _getInventoryById = getInventoryById;
+            _addInventoryField = addInventoryField;
         }
 
         [HttpPost]
-        public async Task<ActionResult<Guid>> Create(CreateInventoryCommand command,CancellationToken cancellationToken)
+        public async Task<ActionResult<Guid>> CreateInventory(CreateInventoryCommand command,CancellationToken cancellationToken)
         {
             var result = await _createInventory.CreateInventory(command, cancellationToken);
             return this.ToActionResult(result);
@@ -35,6 +37,13 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
 
             var result = await _getInventoryById.GetInventoryById(query, cancellationToken);
 
+            return this.ToActionResult(result);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<Guid>> CreateInventoryField(AddInventoryFieldCommand command, CancellationToken cancellationToken)
+        {
+            var result = await _addInventoryField.AddInventoryField(command, cancellationToken);
             return this.ToActionResult(result);
         }
 

@@ -14,7 +14,7 @@ namespace CourseProject_InventoryManagement.Application.Abstractions.Persistence
         DbSet<Category> Categories { get; }
         DbSet<Item> Items { get; }
         DbSet<ItemFieldValue> ItemFieldValues { get; }
-
+        DbSet<InventoryField> InventoryFields { get; }
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }
 }

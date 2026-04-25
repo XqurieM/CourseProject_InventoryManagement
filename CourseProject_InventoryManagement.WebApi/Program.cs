@@ -19,7 +19,7 @@ builder.Services.AddScoped<IAppDbContext>(provider =>
     (IAppDbContext)provider.GetRequiredService<AppDbContext>());
 builder.Services.AddScoped<ICQRS.ICreateInventory, CreateInventoryCommandHandler>();
 builder.Services.AddScoped<ICQRS.IGetInventoryById, GetInventoryByIdQueryHandler>();
-
+builder.Services.AddScoped<ICQRS.IAddInventoryField, AddInventoryFieldCommandHandler>();
 // Add global result convention for Ardalis.Result
 builder.Services.AddControllers(options =>
 {
