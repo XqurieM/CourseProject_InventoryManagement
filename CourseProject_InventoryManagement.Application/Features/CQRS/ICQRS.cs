@@ -1,6 +1,7 @@
 ﻿using Ardalis.Result;
 using CourseProject_InventoryManagement.Application.DTOs;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Commands.InventoryCommands;
+using CourseProject_InventoryManagement.Application.Features.CQRS.Commands.ItemCommands;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Queries.InventoryQueries;
 using System;
 using System.Collections.Generic;
@@ -27,6 +28,14 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS
         {
             Task<Result<Guid>> AddInventoryField(AddInventoryFieldCommand command, CancellationToken cancellationToken = default);
         }
+        #endregion
+
+        #region ItemsInterfaces
+        public interface IAddItem
+        {
+            Task<Result<Guid>> AddItem(AddItemCommand command, CancellationToken cancellationToken = default);
+        }
+
         #endregion
     }
 }

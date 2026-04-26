@@ -2,6 +2,7 @@ using Ardalis.Result.AspNetCore;
 using CourseProject_InventoryManagement.Application.Abstractions.Persistence;
 using CourseProject_InventoryManagement.Application.Features.CQRS;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.InventoryHandlers;
+using CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.ItemHandlers;
 using CourseProject_InventoryManagement.Infrastructure.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,6 +21,7 @@ builder.Services.AddScoped<IAppDbContext>(provider =>
 builder.Services.AddScoped<ICQRS.ICreateInventory, CreateInventoryCommandHandler>();
 builder.Services.AddScoped<ICQRS.IGetInventoryById, GetInventoryByIdQueryHandler>();
 builder.Services.AddScoped<ICQRS.IAddInventoryField, AddInventoryFieldCommandHandler>();
+builder.Services.AddScoped<ICQRS.IAddItem, AddItemCommandHandler>();
 // Add global result convention for Ardalis.Result
 builder.Services.AddControllers(options =>
 {

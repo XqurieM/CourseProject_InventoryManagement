@@ -41,11 +41,11 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Guid>> CreateInventoryField(AddInventoryFieldCommand command, CancellationToken cancellationToken)
+        public async Task<ActionResult<Guid>> AddInventoryField(AddInventoryFieldCommand command, CancellationToken cancellationToken)
         {
             var result = await _addInventoryField.AddInventoryField(command, cancellationToken);
             return this.ToActionResult(result);
-        }
+        }       
 
     }
 }
