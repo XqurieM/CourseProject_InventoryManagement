@@ -9,7 +9,6 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS.Commands.I
     public class AddItemCommand
     {
         public Guid InventoryId { get; set; }
-        public string CustomId { get; set; }
         public Guid CreatedByUserId { get; set; }
     }
 }

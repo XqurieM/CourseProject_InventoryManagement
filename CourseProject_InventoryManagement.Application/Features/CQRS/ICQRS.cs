@@ -28,6 +28,11 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS
         {
             Task<Result<Guid>> AddInventoryField(AddInventoryFieldCommand command, CancellationToken cancellationToken = default);
         }
+
+        public interface IAddInventoryCustomIdRules
+        {
+            Task<Result<Guid>> AddInventoryCustomIdRules(AddInventoryCustomIdRulesCommand command, CancellationToken cancellationToken = default);
+        }
         #endregion
 
         #region ItemsInterfaces

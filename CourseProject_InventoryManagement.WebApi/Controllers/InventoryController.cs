@@ -15,12 +15,14 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
         private readonly ICreateInventory _createInventory;
         private readonly IGetInventoryById _getInventoryById;
         private readonly IAddInventoryField _addInventoryField;
+        private readonly IAddInventoryCustomIdRules _addInventoryCustomIdRules;
 
-        public InventoryController(ICreateInventory createInventory, IGetInventoryById getInventoryById, IAddInventoryField addInventoryField)
+        public InventoryController(ICreateInventory createInventory, IGetInventoryById getInventoryById, IAddInventoryField addInventoryField, IAddInventoryCustomIdRules addInventoryCustomIdRules)
         {
             _createInventory = createInventory;
             _getInventoryById = getInventoryById;
             _addInventoryField = addInventoryField;
+            _addInventoryCustomIdRules = addInventoryCustomIdRules;
         }
 
         [HttpPost]
@@ -45,7 +47,14 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
         {
             var result = await _addInventoryField.AddInventoryField(command, cancellationToken);
             return this.ToActionResult(result);
-        }       
+        } 
+
+        [HttpPost]
+        public async Task<ActionResult<Guid>> AddInventoryCustomIdRules(AddInventoryCustomIdRulesCommand command, CancellationToken cancellationToken)
+        {
+            var result = await _addInventoryCustomIdRules.AddInventoryCustomIdRules(command, cancellationToken);
+            return this.ToActionResult(result);
+        }
 
     }
 }
