@@ -24,8 +24,21 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.I
             _idGenerator = idGenerator;
         }
 
-        public async Task<Result<Guid>> AddItem(AddItemCommand command, CancellationToken cancellationToken = default)
+        public async Task<Result<List<Guid>>> AddItem(AddItemCommand command, CancellationToken cancellationToken = default)
         {
+            var inventoryExists = await _context.Inventories
+            .AnyAsync(x => x.Id == command.InventoryId, cancellationToken);
+
+            if (!inventoryExists)
+            {
+                return Result.NotFound($"The inventory with ID '{command.InventoryId}' was not found.");
+            }
+
+            if (command.Items == null || !command.Items.Any())
+            {
+                return Result.Invalid(new ValidationError("The item list cannot be empty."));
+            }
+
             var rules = await _context.InventoryCustomIdRules
                 .Where(x => x.InventoryId == command.InventoryId)
                 .OrderBy(x => x.PartOrder)
@@ -34,22 +47,39 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.I
             var currentCount = await _context.Items
                 .CountAsync(x => x.InventoryId == command.InventoryId, cancellationToken);
 
-            string generatedCustomId = _idGenerator.Generate(rules, currentCount);
+            var newItems = new List<Item>();
+            var now = DateTime.UtcNow;
 
-            var newItem = new Item
+            try
             {
-                Id = Guid.NewGuid(),
-                ItemName = command.ItemName,
-                InventoryId = command.InventoryId,
-                CustomId = generatedCustomId,
-                CreatedAtUtc = DateTime.UtcNow,
-                IsDeleted = false
-            };
+                foreach (var itemDto in command.Items)
+                {
+                    string generatedCustomId = _idGenerator.Generate(rules, currentCount);
+                    currentCount++;
 
-            _context.Items.Add(newItem);
-            await _context.SaveChangesAsync(cancellationToken);
+                    var newItem = new Item
+                    {
+                        Id = Guid.NewGuid(),
+                        ItemName = itemDto.ItemName,
+                        InventoryId = command.InventoryId,
+                        CustomId = generatedCustomId,
+                        CreatedAtUtc = now,
+                        CreatedByUserId = command.CreatedByUserId,
+                        IsDeleted = false
+                    };
 
-            return newItem.Id; 
+                    newItems.Add(newItem);
+                }
+
+                await _context.Items.AddRangeAsync(newItems, cancellationToken);
+                await _context.SaveChangesAsync(cancellationToken);
+
+                return Result.Success(newItems.Select(x => x.Id).ToList());
+            }
+            catch (Exception ex)
+            {
+                return Result.Error($"An error occurred during bulk item insertion: {ex.Message}");
+            }
         }
     }
 }

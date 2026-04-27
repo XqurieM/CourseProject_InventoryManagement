@@ -21,7 +21,7 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Guid>> AddItem(AddItemCommand command, CancellationToken cancellationToken)
+        public async Task<ActionResult<List<Guid>>> AddItem(AddItemCommand command, CancellationToken cancellationToken)
         {
             var result = await _addItem.AddItem(command, cancellationToken);
             return this.ToActionResult(result);
