@@ -39,6 +39,7 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.I
             var newItem = new Item
             {
                 Id = Guid.NewGuid(),
+                ItemName = command.ItemName,
                 InventoryId = command.InventoryId,
                 CustomId = generatedCustomId,
                 CreatedAtUtc = DateTime.UtcNow,

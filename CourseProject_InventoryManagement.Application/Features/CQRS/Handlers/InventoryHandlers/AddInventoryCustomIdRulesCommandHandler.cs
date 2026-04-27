@@ -11,11 +11,11 @@ using System.Threading.Tasks;
 
 namespace CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.InventoryHandlers
 {
-    public class AddInventoryCustomIdRulesHandler : ICQRS.IAddInventoryCustomIdRules
+    public class AddInventoryCustomIdRulesCommandHandler : ICQRS.IAddInventoryCustomIdRules
     {
         IAppDbContext _context;
 
-        public AddInventoryCustomIdRulesHandler(IAppDbContext appDbContext)
+        public AddInventoryCustomIdRulesCommandHandler(IAppDbContext appDbContext)
         {
             _context = appDbContext;
         }
@@ -55,7 +55,7 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.I
 
             var result = await _context.SaveChangesAsync(cancellationToken);
 
-            return Result<Guid>.Success(Guid.NewGuid());
+            return Result<Guid>.Success(command.InventoryId);
 
         }
     }

@@ -17,6 +17,10 @@ namespace CourseProject_InventoryManagement.Infrastructure.Persistence.Configura
 
             builder.HasKey(x => x.Id);
 
+            builder.Property(x => x.ItemName)
+                .IsRequired()
+                .HasMaxLength(500);
+
             builder.Property(x => x.CustomId)
                 .IsRequired()
                 .HasMaxLength(200);
@@ -38,6 +42,8 @@ namespace CourseProject_InventoryManagement.Infrastructure.Persistence.Configura
             builder.HasIndex(x => x.InventoryId);
             builder.HasIndex(x => x.CreatedByUserId);
             builder.HasIndex(x => x.CreatedAtUtc);
+
+            builder.HasIndex(x => x.ItemName);
         }
     }
 }

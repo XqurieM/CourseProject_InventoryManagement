@@ -41,6 +41,11 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS
             Task<Result<Guid>> AddItem(AddItemCommand command, CancellationToken cancellationToken = default);
         }
 
+        public interface IAddItemFieldValues
+        {
+            Task<Result<Guid>> AddItemFieldValues(AddItemFieldValuesCommand command, CancellationToken cancellationToken = default);
+        }
+
         #endregion
     }
 }

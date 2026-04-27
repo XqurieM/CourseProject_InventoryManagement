@@ -10,6 +10,7 @@ namespace CourseProject_InventoryManagement.Domain.Entities
     public class Item : SoftDeletableEntity
     {
         public Guid InventoryId { get; set; }
+        public string ItemName { get; set; }
         public string CustomId { get; set; } = null!;
         public byte[] RowVersion { get; set; } = Array.Empty<byte>();
         public Inventory Inventory { get; set; } = null!;

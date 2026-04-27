@@ -24,7 +24,8 @@ builder.Services.AddScoped<ICQRS.ICreateInventory, CreateInventoryCommandHandler
 builder.Services.AddScoped<ICQRS.IGetInventoryById, GetInventoryByIdQueryHandler>();
 builder.Services.AddScoped<ICQRS.IAddInventoryField, AddInventoryFieldCommandHandler>();
 builder.Services.AddScoped<ICQRS.IAddItem, AddItemCommandHandler>();
-builder.Services.AddScoped<ICQRS.IAddInventoryCustomIdRules, AddInventoryCustomIdRulesHandler>();
+builder.Services.AddScoped<ICQRS.IAddInventoryCustomIdRules, AddInventoryCustomIdRulesCommandHandler>();
+builder.Services.AddScoped<ICQRS.IAddItemFieldValues, AddItemFieldValuesCommandHandler>();
 builder.Services.AddScoped<ICustomIdGenerator, CustomIdGenerator>();
 // Add global result convention for Ardalis.Result
 builder.Services.AddControllers(options =>
