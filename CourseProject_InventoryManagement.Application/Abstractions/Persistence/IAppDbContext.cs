@@ -10,12 +10,15 @@ namespace CourseProject_InventoryManagement.Application.Abstractions.Persistence
 {
     public interface IAppDbContext
     {
+        DbSet<AppUser> Users { get; }
         DbSet<Inventory> Inventories { get; }
         DbSet<Category> Categories { get; }
         DbSet<Item> Items { get; }
         DbSet<ItemFieldValue> ItemFieldValues { get; }
         DbSet<InventoryField> InventoryFields { get; }
         DbSet<InventoryCustomIdRule> InventoryCustomIdRules { get; }
+        DbSet<InventoryAccess> InventoryAccesses { get; }
+        DbSet<RefreshToken> RefreshTokens { get; }
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }
 }

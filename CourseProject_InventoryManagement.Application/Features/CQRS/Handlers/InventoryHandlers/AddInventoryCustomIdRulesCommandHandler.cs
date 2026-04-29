@@ -1,62 +1,74 @@
-﻿using Ardalis.Result;
+using Ardalis.Result;
+using CourseProject_InventoryManagement.Application.Abstractions.Authentication;
+using CourseProject_InventoryManagement.Application.Abstractions.Authorization;
 using CourseProject_InventoryManagement.Application.Abstractions.Persistence;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Commands.InventoryCommands;
+using CourseProject_InventoryManagement.Application.Features.CQRS.Results;
 using CourseProject_InventoryManagement.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.InventoryHandlers
 {
     public class AddInventoryCustomIdRulesCommandHandler : ICQRS.IAddInventoryCustomIdRules
     {
-        IAppDbContext _context;
+        private readonly IAppDbContext _context;
+        private readonly IAuthenticatedUserService _authenticatedUserService;
+        private readonly IInventoryAuthorizationService _inventoryAuthorizationService;
 
-        public AddInventoryCustomIdRulesCommandHandler(IAppDbContext appDbContext)
+        public AddInventoryCustomIdRulesCommandHandler(
+            IAppDbContext appDbContext,
+            IAuthenticatedUserService authenticatedUserService,
+            IInventoryAuthorizationService inventoryAuthorizationService)
         {
             _context = appDbContext;
+            _authenticatedUserService = authenticatedUserService;
+            _inventoryAuthorizationService = inventoryAuthorizationService;
         }
 
         public async Task<Result<Guid>> AddInventoryCustomIdRules(AddInventoryCustomIdRulesCommand command, CancellationToken cancellationToken = default)
-        {  
-            var inventoryExists = await _context.Inventories.AnyAsync(x => x.Id == command.InventoryId && !x.IsDeleted, cancellationToken);
+        {
+            var userResult = await _authenticatedUserService.GetRequiredUserAsync(cancellationToken);
+            if (!userResult.IsSuccess)
+            {
+                return ResultFailureMapper.MapFailure<AppUser, Guid>(userResult);
+            }
 
+            var canManage = await _inventoryAuthorizationService.CanManageInventoryAsync(command.InventoryId, userResult.Value.Id, cancellationToken);
+            if (!canManage)
+            {
+                return Result<Guid>.Forbidden("Only the inventory owner or an admin can edit custom ID rules.");
+            }
+
+            var inventoryExists = await _context.Inventories.AnyAsync(x => x.Id == command.InventoryId && !x.IsDeleted, cancellationToken);
             if (!inventoryExists)
             {
                 return Result<Guid>.NotFound($"Inventory with ID {command.InventoryId} not found.");
             }
 
-
             var existingRules = await _context.InventoryCustomIdRules
                 .Where(x => x.InventoryId == command.InventoryId)
                 .ToListAsync(cancellationToken);
-
 
             if (existingRules.Any())
             {
                 _context.InventoryCustomIdRules.RemoveRange(existingRules);
             }
 
-
             var newRules = command.Rules.Select(r => new InventoryCustomIdRule
             {
                 Id = Guid.NewGuid(),
                 InventoryId = command.InventoryId,
                 PartOrder = r.PartOrder,
-                PartType = r.PartType, 
+                PartType = r.PartType,
                 StaticTextValue = r.StaticTextValue,
-                Format = r.Format
+                Format = r.Format,
+                CreatedByUserId = userResult.Value.Id
             }).ToList();
 
             await _context.InventoryCustomIdRules.AddRangeAsync(newRules, cancellationToken);
-
-            var result = await _context.SaveChangesAsync(cancellationToken);
+            await _context.SaveChangesAsync(cancellationToken);
 
             return Result<Guid>.Success(command.InventoryId);
-
         }
     }
 }

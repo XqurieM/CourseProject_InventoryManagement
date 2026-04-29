@@ -1,18 +1,54 @@
-﻿using Ardalis.Result;
+using Ardalis.Result;
 using CourseProject_InventoryManagement.Application.DTOs;
+using CourseProject_InventoryManagement.Application.Features.CQRS.Commands.AuthCommands;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Commands.InventoryCommands;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Commands.ItemCommands;
+using CourseProject_InventoryManagement.Application.Features.CQRS.Commands.UserCommands;
+using CourseProject_InventoryManagement.Application.Features.CQRS.Queries.AuthQueries;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Queries.InventoryQueries;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using CourseProject_InventoryManagement.Application.Features.CQRS.Queries.UserQueries;
 
 namespace CourseProject_InventoryManagement.Application.Features.CQRS
 {
     public interface ICQRS
     {
+        #region AuthInterfaces
+        public interface IRegisterUser
+        {
+            Task<Result<AuthTokenDto>> RegisterUser(RegisterUserCommand command, CancellationToken cancellationToken = default);
+        }
+
+        public interface ILoginUser
+        {
+            Task<Result<AuthTokenDto>> LoginUser(LoginUserCommand command, CancellationToken cancellationToken = default);
+        }
+
+        public interface IRefreshAccessToken
+        {
+            Task<Result<AuthTokenDto>> RefreshAccessToken(RefreshAccessTokenCommand command, CancellationToken cancellationToken = default);
+        }
+
+        public interface IRevokeRefreshToken
+        {
+            Task<Result> RevokeRefreshToken(RevokeRefreshTokenCommand command, CancellationToken cancellationToken = default);
+        }
+
+        public interface IGetCurrentUser
+        {
+            Task<Result<UserDto>> GetCurrentUser(GetCurrentUserQuery query, CancellationToken cancellationToken = default);
+        }
+
+        public interface IUpdateUserLanguage
+        {
+            Task<Result<UserDto>> UpdateUserLanguage(UpdateUserLanguageCommand command, CancellationToken cancellationToken = default);
+        }
+
+        public interface IUpdateUserTheme
+        {
+            Task<Result<UserDto>> UpdateUserTheme(UpdateUserThemeCommand command, CancellationToken cancellationToken = default);
+        }
+        #endregion
+
         #region InventoryInterfaces
         public interface ICreateInventory
         {
@@ -33,6 +69,11 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS
         {
             Task<Result<Guid>> AddInventoryCustomIdRules(AddInventoryCustomIdRulesCommand command, CancellationToken cancellationToken = default);
         }
+
+        public interface IUpdateInventoryAccess
+        {
+            Task<Result<Guid>> UpdateInventoryAccess(UpdateInventoryAccessCommand command, CancellationToken cancellationToken = default);
+        }
         #endregion
 
         #region ItemsInterfaces
@@ -45,7 +86,38 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS
         {
             Task<Result<Guid>> AddItemFieldValues(AddItemFieldValuesCommand command, CancellationToken cancellationToken = default);
         }
+        #endregion
 
+        #region UserManagementInterfaces
+        public interface IGetUsers
+        {
+            Task<Result<List<UserDto>>> GetUsers(GetUsersQuery query, CancellationToken cancellationToken = default);
+        }
+
+        public interface IBlockUser
+        {
+            Task<Result<Guid>> BlockUser(BlockUserCommand command, CancellationToken cancellationToken = default);
+        }
+
+        public interface IUnblockUser
+        {
+            Task<Result<Guid>> UnblockUser(UnblockUserCommand command, CancellationToken cancellationToken = default);
+        }
+
+        public interface IDeleteUser
+        {
+            Task<Result<Guid>> DeleteUser(DeleteUserCommand command, CancellationToken cancellationToken = default);
+        }
+
+        public interface IGrantAdminRole
+        {
+            Task<Result<Guid>> GrantAdminRole(GrantAdminRoleCommand command, CancellationToken cancellationToken = default);
+        }
+
+        public interface IRevokeAdminRole
+        {
+            Task<Result<Guid>> RevokeAdminRole(RevokeAdminRoleCommand command, CancellationToken cancellationToken = default);
+        }
         #endregion
     }
 }

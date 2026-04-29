@@ -15,5 +15,8 @@ namespace CourseProject_InventoryManagement.Application.DTOs
         public bool IsPublic { get; set; }
         public string? ImageUrl { get; set; }
         public DateTime CreatedAtUtc { get; set; }
+        public Guid CreatedByUserId { get; set; }
+        public bool CanManageInventory { get; set; }
+        public bool CanWriteItems { get; set; }
     }
 }

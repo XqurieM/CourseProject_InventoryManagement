@@ -1,7 +1,6 @@
-﻿using Ardalis.Result.AspNetCore;
-using CourseProject_InventoryManagement.Application.Features.CQRS;
+using Ardalis.Result.AspNetCore;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Commands.ItemCommands;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using static CourseProject_InventoryManagement.Application.Features.CQRS.ICQRS;
 
@@ -11,8 +10,8 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
     [ApiController]
     public class ItemController : ControllerBase
     {
-        private readonly ICQRS.IAddItem _addItem;
-        private readonly ICQRS.IAddItemFieldValues _addItemFieldValues;
+        private readonly IAddItem _addItem;
+        private readonly IAddItemFieldValues _addItemFieldValues;
 
         public ItemController(IAddItem addItem, IAddItemFieldValues addItemFieldValues)
         {
@@ -20,6 +19,7 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
             _addItemFieldValues = addItemFieldValues;
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult<List<Guid>>> AddItem(AddItemCommand command, CancellationToken cancellationToken)
         {
@@ -27,6 +27,7 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
             return this.ToActionResult(result);
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult<Guid>> AddItemFieldValues(AddItemFieldValuesCommand command, CancellationToken cancellationToken)
         {

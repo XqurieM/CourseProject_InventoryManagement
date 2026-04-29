@@ -8,6 +8,6 @@ namespace CourseProject_InventoryManagement.Application.DTOs
 {
     public class ItemAddDto
     {
-        public string ItemName { get; set; }        
+        public string ItemName { get; set; } = null!;
     }
 }

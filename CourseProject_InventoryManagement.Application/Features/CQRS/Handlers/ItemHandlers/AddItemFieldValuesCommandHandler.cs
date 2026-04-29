@@ -1,33 +1,52 @@
-﻿using Ardalis.Result;
+using Ardalis.Result;
+using CourseProject_InventoryManagement.Application.Abstractions.Authentication;
+using CourseProject_InventoryManagement.Application.Abstractions.Authorization;
 using CourseProject_InventoryManagement.Application.Abstractions.Persistence;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Commands.ItemCommands;
+using CourseProject_InventoryManagement.Application.Features.CQRS.Results;
 using CourseProject_InventoryManagement.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.ItemHandlers
 {
     public class AddItemFieldValuesCommandHandler : ICQRS.IAddItemFieldValues
     {
-        IAppDbContext _context;
+        private readonly IAppDbContext _context;
+        private readonly IAuthenticatedUserService _authenticatedUserService;
+        private readonly IInventoryAuthorizationService _inventoryAuthorizationService;
 
-        public AddItemFieldValuesCommandHandler(IAppDbContext context)
+        public AddItemFieldValuesCommandHandler(
+            IAppDbContext context,
+            IAuthenticatedUserService authenticatedUserService,
+            IInventoryAuthorizationService inventoryAuthorizationService)
         {
             _context = context;
+            _authenticatedUserService = authenticatedUserService;
+            _inventoryAuthorizationService = inventoryAuthorizationService;
         }
 
         public async Task<Result<Guid>> AddItemFieldValues(AddItemFieldValuesCommand command, CancellationToken cancellationToken = default)
         {
-            var itemExists = await _context.Items
-            .AnyAsync(x => x.Id == command.ItemId, cancellationToken);
-
-            if (!itemExists)
+            var userResult = await _authenticatedUserService.GetRequiredUserAsync(cancellationToken);
+            if (!userResult.IsSuccess)
             {
-                return Result.NotFound($"The item with ID '{command.ItemId}' was not found.");
+                return ResultFailureMapper.MapFailure<AppUser, Guid>(userResult);
+            }
+
+            var item = await _context.Items
+                .Where(x => x.Id == command.ItemId)
+                .Select(x => new { x.Id, x.InventoryId })
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (item is null)
+            {
+                return Result<Guid>.NotFound($"The item with ID '{command.ItemId}' was not found.");
+            }
+
+            var canWriteItems = await _inventoryAuthorizationService.CanWriteItemsAsync(item.InventoryId, userResult.Value.Id, cancellationToken);
+            if (!canWriteItems)
+            {
+                return Result<Guid>.Forbidden("You do not have permission to edit items in this inventory.");
             }
 
             var existingValues = await _context.ItemFieldValues
@@ -45,7 +64,8 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.I
                 InventoryFieldId = v.InventoryFieldId,
                 StringValue = v.StringValue,
                 NumberValue = v.NumberValue,
-                BooleanValue = v.BooleanValue
+                BooleanValue = v.BooleanValue,
+                CreatedByUserId = userResult.Value.Id
             }).ToList();
 
             if (newValues.Any())
@@ -56,11 +76,11 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.I
             try
             {
                 await _context.SaveChangesAsync(cancellationToken);
-                return Result.Success(command.ItemId);
+                return Result<Guid>.Success(command.ItemId);
             }
             catch (Exception ex)
             {
-                return Result.Error($"An error occurred while saving item field values: {ex.Message}");
+                return Result<Guid>.Error($"An error occurred while saving item field values: {ex.Message}");
             }
         }
     }

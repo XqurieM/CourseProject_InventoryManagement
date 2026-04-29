@@ -12,6 +12,6 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS.Commands.I
     public class AddInventoryCustomIdRulesCommand
     {
         public Guid InventoryId { get; set; }
-        public List<CustomIdRulePartDto> Rules { get; set; }
+        public List<CustomIdRulePartDto> Rules { get; set; } = new();
     }
 }

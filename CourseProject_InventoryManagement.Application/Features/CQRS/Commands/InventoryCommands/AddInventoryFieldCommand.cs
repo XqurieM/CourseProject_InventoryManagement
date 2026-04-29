@@ -11,6 +11,6 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS.Commands.I
     public class AddInventoryFieldCommand
     {
         public Guid InventoryId { get; set; }
-        public List<InventoryFieldDto> Fields { get; set; }
+        public List<InventoryFieldDto> Fields { get; set; } = new();
     }
 }

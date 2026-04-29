@@ -12,6 +12,7 @@ public class AppDbContext :DbContext, IAppDbContext
     {
     }
 
+    public DbSet<AppUser> Users => Set<AppUser>();
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<Tag> Tags => Set<Tag>();
     public DbSet<Inventory> Inventories => Set<Inventory>();
@@ -20,6 +21,7 @@ public class AppDbContext :DbContext, IAppDbContext
     public DbSet<InventoryField> InventoryFields => Set<InventoryField>();
     public DbSet<InventoryCustomIdRule> InventoryCustomIdRules => Set<InventoryCustomIdRule>();
     public DbSet<InventoryAccess> InventoryAccesses => Set<InventoryAccess>();
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
     public DbSet<Item> Items => Set<Item>();
     public DbSet<ItemFieldValue> ItemFieldValues => Set<ItemFieldValue>();
