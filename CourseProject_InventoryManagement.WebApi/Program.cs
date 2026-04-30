@@ -4,9 +4,11 @@ using CourseProject_InventoryManagement.Application.Abstractions.Authorization;
 using CourseProject_InventoryManagement.Application.Abstractions.Persistence;
 using CourseProject_InventoryManagement.Application.Features.CQRS;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.AuthHandlers;
+using CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.GeneralHandlers;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.InventoryHandlers;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.ItemHandlers;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.UserHandlers;
+using CourseProject_InventoryManagement.Application.Features.CQRS.Queries.GeneralQueries;
 using CourseProject_InventoryManagement.Domain.Interfaces;
 using CourseProject_InventoryManagement.Domain.Services;
 using CourseProject_InventoryManagement.Infrastructure.Authentication;
@@ -90,6 +92,7 @@ builder.Services.AddScoped<ICQRS.IUnblockUser, UnblockUserCommandHandler>();
 builder.Services.AddScoped<ICQRS.IDeleteUser, DeleteUserCommandHandler>();
 builder.Services.AddScoped<ICQRS.IGrantAdminRole, GrantAdminRoleCommandHandler>();
 builder.Services.AddScoped<ICQRS.IRevokeAdminRole, RevokeAdminRoleCommandHandler>();
+builder.Services.AddScoped<ICQRS.IGetDashboardStatistics, GetDashboardStatisticsQueryHandler>();
 builder.Services.AddScoped<ICustomIdGenerator, CustomIdGenerator>();
 
 var jwtSettings = builder.Configuration.GetSection(JwtSettings.SectionName).Get<JwtSettings>()

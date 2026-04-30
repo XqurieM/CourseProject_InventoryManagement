@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Features\CQRS\Results\" />
+    <Folder Include="Features\CQRS\Commands\GeneralCommands\" />
   </ItemGroup>
 
   <ItemGroup>

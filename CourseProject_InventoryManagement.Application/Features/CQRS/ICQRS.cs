@@ -5,8 +5,10 @@ using CourseProject_InventoryManagement.Application.Features.CQRS.Commands.Inven
 using CourseProject_InventoryManagement.Application.Features.CQRS.Commands.ItemCommands;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Commands.UserCommands;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Queries.AuthQueries;
+using CourseProject_InventoryManagement.Application.Features.CQRS.Queries.GeneralQueries;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Queries.InventoryQueries;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Queries.UserQueries;
+using CourseProject_InventoryManagement.Application.Features.CQRS.Results.GeneralResults;
 
 namespace CourseProject_InventoryManagement.Application.Features.CQRS
 {
@@ -118,6 +120,14 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS
         {
             Task<Result<Guid>> RevokeAdminRole(RevokeAdminRoleCommand command, CancellationToken cancellationToken = default);
         }
+        #endregion
+
+        #region GeneralInterfaces
+        public interface IGetDashboardStatistics
+        {
+            Task<Result<GetDashboardStatisticsResult>> GetDashboardStatistics(GetDashboardStatisticsQuery query, CancellationToken cancellationToken = default);
+        }
+
         #endregion
     }
 }
