@@ -96,6 +96,11 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS
             Task<Result<List<UserDto>>> GetUsers(GetUsersQuery query, CancellationToken cancellationToken = default);
         }
 
+        public interface IGetUsersById
+        {
+            Task<Result<UserDto>> GetUsersById(GetUserByIdQuery query, CancellationToken cancellationToken = default);
+        }
+
         public interface IBlockUser
         {
             Task<Result<Guid>> BlockUser(BlockUserCommand command, CancellationToken cancellationToken = default);

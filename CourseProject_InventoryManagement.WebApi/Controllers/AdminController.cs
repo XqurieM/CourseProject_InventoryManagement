@@ -19,14 +19,9 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
         private readonly IDeleteUser _deleteUser;
         private readonly IGrantAdminRole _grantAdminRole;
         private readonly IRevokeAdminRole _revokeAdminRole;
+        private readonly IGetUsersById _getUsersById;
 
-        public AdminController(
-            IGetUsers getUsers,
-            IBlockUser blockUser,
-            IUnblockUser unblockUser,
-            IDeleteUser deleteUser,
-            IGrantAdminRole grantAdminRole,
-            IRevokeAdminRole revokeAdminRole)
+        public AdminController(IGetUsers getUsers, IBlockUser blockUser, IUnblockUser unblockUser, IDeleteUser deleteUser, IGrantAdminRole grantAdminRole, IRevokeAdminRole revokeAdminRole, IGetUsersById getUsersById)
         {
             _getUsers = getUsers;
             _blockUser = blockUser;
@@ -34,12 +29,20 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
             _deleteUser = deleteUser;
             _grantAdminRole = grantAdminRole;
             _revokeAdminRole = revokeAdminRole;
+            _getUsersById = getUsersById;
         }
 
         [HttpGet]
         public async Task<ActionResult<List<UserDto>>> GetUsers(CancellationToken cancellationToken)
         {
             var result = await _getUsers.GetUsers(new GetUsersQuery(), cancellationToken);
+            return this.ToActionResult(result);
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<UserDto>> GetUserById(Guid id, CancellationToken cancellationToken)
+        {
+            var result = await _getUsersById.GetUsersById(new GetUserByIdQuery { Id = id }, cancellationToken);
             return this.ToActionResult(result);
         }
 

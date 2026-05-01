@@ -87,6 +87,7 @@ builder.Services.AddScoped<ICQRS.IUpdateInventoryAccess, UpdateInventoryAccessCo
 builder.Services.AddScoped<ICQRS.IAddItem, AddItemCommandHandler>();
 builder.Services.AddScoped<ICQRS.IAddItemFieldValues, AddItemFieldValuesCommandHandler>();
 builder.Services.AddScoped<ICQRS.IGetUsers, GetUsersQueryHandler>();
+builder.Services.AddScoped<ICQRS.IGetUsersById, GetUserByIdQueryHandler>();
 builder.Services.AddScoped<ICQRS.IBlockUser, BlockUserCommandHandler>();
 builder.Services.AddScoped<ICQRS.IUnblockUser, UnblockUserCommandHandler>();
 builder.Services.AddScoped<ICQRS.IDeleteUser, DeleteUserCommandHandler>();

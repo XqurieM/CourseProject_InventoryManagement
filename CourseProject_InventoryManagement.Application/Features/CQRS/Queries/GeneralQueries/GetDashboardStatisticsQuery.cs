@@ -8,6 +8,6 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS.Queries.Ge
 {
     public class GetDashboardStatisticsQuery
     {
-        public Guid UserId { get; set; }
+        
     }
 }
