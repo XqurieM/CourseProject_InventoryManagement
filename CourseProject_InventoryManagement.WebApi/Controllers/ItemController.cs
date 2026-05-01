@@ -1,4 +1,5 @@
 using Ardalis.Result.AspNetCore;
+using CourseProject_InventoryManagement.Application.DTOs;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Commands.ItemCommands;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,11 +13,13 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
     {
         private readonly IAddItem _addItem;
         private readonly IAddItemFieldValues _addItemFieldValues;
+        private readonly IGetItemsByInventoryId _getItemsByInventoryId;
 
-        public ItemController(IAddItem addItem, IAddItemFieldValues addItemFieldValues)
+        public ItemController(IAddItem addItem, IAddItemFieldValues addItemFieldValues, IGetItemsByInventoryId getItemsByInventoryId)
         {
             _addItem = addItem;
             _addItemFieldValues = addItemFieldValues;
+            _getItemsByInventoryId = getItemsByInventoryId;
         }
 
         [Authorize]
@@ -33,6 +36,14 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
         {
             var result = await _addItemFieldValues.AddItemFieldValues(command, cancellationToken);
             return this.ToActionResult(result);
+        }
+
+        [Authorize]
+        [HttpGet]
+        public async Task<ActionResult<List<ItemDto>>> GetItemsByInventoryId(Guid inventoryId, CancellationToken cancellationToken)
+        {
+            var result = await _getItemsByInventoryId.GetItemsByInventoryId(inventoryId, cancellationToken);
+            return this.ToActionResult(result);    
         }
     }
 }

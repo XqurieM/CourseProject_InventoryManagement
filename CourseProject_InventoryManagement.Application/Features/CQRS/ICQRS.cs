@@ -108,6 +108,11 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS
         {
             Task<Result<Guid>> AddItemFieldValues(AddItemFieldValuesCommand command, CancellationToken cancellationToken = default);
         }
+
+        public interface IGetItemsByInventoryId
+        {
+            Task<Result<List<ItemDto>>> GetItemsByInventoryId(Guid inventoryId, CancellationToken cancellationToken = default);
+        }
         #endregion
 
         #region UserManagementInterfaces
