@@ -7,8 +7,8 @@ using CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.AuthH
 using CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.GeneralHandlers;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.InventoryHandlers;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.ItemHandlers;
+using CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.TagHandlers;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.UserHandlers;
-using CourseProject_InventoryManagement.Application.Features.CQRS.Queries.GeneralQueries;
 using CourseProject_InventoryManagement.Domain.Interfaces;
 using CourseProject_InventoryManagement.Domain.Services;
 using CourseProject_InventoryManagement.Infrastructure.Authentication;
@@ -83,6 +83,9 @@ builder.Services.AddScoped<ICQRS.ICreateInventory, CreateInventoryCommandHandler
 builder.Services.AddScoped<ICQRS.IGetInventoryById, GetInventoryByIdQueryHandler>();
 builder.Services.AddScoped<ICQRS.IGetLast10Inventories, GetLast10InventoriesQueryHandler>();
 builder.Services.AddScoped<ICQRS.IGetPopular5Inventories, GetPopular5InventoriesQueryHandler>();
+builder.Services.AddScoped<ICQRS.IGetMyEditableInventories, GetMyEditableInventoriesQueryHandler>();
+builder.Services.AddScoped<ICQRS.IGetOwnInventories, GetMyOwnInventoriesQueryHandler>();
+builder.Services.AddScoped<ICQRS.IGetAllTags, GetAllTagsQueryHandler>();
 builder.Services.AddScoped<ICQRS.IAddInventoryField, AddInventoryFieldCommandHandler>();
 builder.Services.AddScoped<ICQRS.IAddInventoryCustomIdRules, AddInventoryCustomIdRulesCommandHandler>();
 builder.Services.AddScoped<ICQRS.IUpdateInventoryAccess, UpdateInventoryAccessCommandHandler>();

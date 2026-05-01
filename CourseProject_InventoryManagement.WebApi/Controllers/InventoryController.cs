@@ -19,9 +19,11 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
         private readonly IAddInventoryCustomIdRules _addInventoryCustomIdRules;
         private readonly IUpdateInventoryAccess _updateInventoryAccess;
         private readonly IGetPopular5Inventories _getPopular5Inventories;
+        private readonly IGetMyEditableInventories _getMyEditableInventories;
+        private readonly IGetOwnInventories _getOwnInventories;
         private readonly IGetLast10Inventories _getLast10Inventories;
 
-        public InventoryController(ICreateInventory createInventory, IGetInventoryById getInventoryById, IAddInventoryField addInventoryField, IAddInventoryCustomIdRules addInventoryCustomIdRules, IUpdateInventoryAccess updateInventoryAccess, IGetPopular5Inventories getPopular5Inventories, IGetLast10Inventories getLast10Inventories)
+        public InventoryController(ICreateInventory createInventory, IGetInventoryById getInventoryById, IAddInventoryField addInventoryField, IAddInventoryCustomIdRules addInventoryCustomIdRules, IUpdateInventoryAccess updateInventoryAccess, IGetPopular5Inventories getPopular5Inventories, IGetMyEditableInventories getMyEditableInventories, IGetOwnInventories getOwnInventories, IGetLast10Inventories getLast10Inventories)
         {
             _createInventory = createInventory;
             _getInventoryById = getInventoryById;
@@ -29,6 +31,8 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
             _addInventoryCustomIdRules = addInventoryCustomIdRules;
             _updateInventoryAccess = updateInventoryAccess;
             _getPopular5Inventories = getPopular5Inventories;
+            _getMyEditableInventories = getMyEditableInventories;
+            _getOwnInventories = getOwnInventories;
             _getLast10Inventories = getLast10Inventories;
         }
 
@@ -62,6 +66,22 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
         public async Task<ActionResult<List<GetInventoriesWithJoinInfosResult>>> GetLast10Inventories(CancellationToken cancellationToken)
         {
             var result = await _getLast10Inventories.GetLast10Inventories(cancellationToken);
+            return this.ToActionResult(result);
+        }
+
+        [Authorize]
+        [HttpGet]
+        public async Task<ActionResult<List<GetProfileInventoriesResult>>> GetOwnInventories(Guid UserId,CancellationToken cancellationToken)
+        {
+            var result = await _getOwnInventories.GetOwnInventories(UserId,cancellationToken);
+            return this.ToActionResult(result);
+        }
+
+        [Authorize]
+        [HttpGet]
+        public async Task<ActionResult<List<GetProfileInventoriesResult>>> GetMyEditableInventories(Guid UserId, CancellationToken cancellationToken)
+        {
+            var result = await _getMyEditableInventories.GetMyEditableInventories(UserId,cancellationToken);
             return this.ToActionResult(result);
         }
 

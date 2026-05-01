@@ -73,6 +73,15 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS
             Task<Result<List<GetInventoriesWithJoinInfosResult>>> GetLast10Inventories(CancellationToken cancellationToken = default);
         }
 
+        public interface IGetMyEditableInventories
+        {
+            Task<Result<List<GetProfileInventoriesResult>>> GetMyEditableInventories(Guid UserId, CancellationToken cancellationToken = default);
+        }
+
+        public interface IGetOwnInventories
+        {
+            Task<Result<List<GetProfileInventoriesResult>>> GetOwnInventories(Guid UserId, CancellationToken cancellationToken = default);
+        }
         public interface IAddInventoryField
         {
             Task<Result<Guid>> AddInventoryField(AddInventoryFieldCommand command, CancellationToken cancellationToken = default);
@@ -144,6 +153,13 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS
             Task<Result<GetDashboardStatisticsResult>> GetDashboardStatistics(GetDashboardStatisticsQuery query, CancellationToken cancellationToken = default);
         }
 
+        #endregion
+
+        #region Tags
+        public interface IGetAllTags
+        {
+            Task<Result<List<TagDto>>> GetAllTags(CancellationToken cancellationToken = default);
+        }
         #endregion
     }
 }
