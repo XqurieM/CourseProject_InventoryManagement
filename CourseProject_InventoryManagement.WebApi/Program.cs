@@ -81,6 +81,8 @@ builder.Services.AddScoped<ICQRS.IUpdateUserLanguage, UpdateUserLanguageCommandH
 builder.Services.AddScoped<ICQRS.IUpdateUserTheme, UpdateUserThemeCommandHandler>();
 builder.Services.AddScoped<ICQRS.ICreateInventory, CreateInventoryCommandHandler>();
 builder.Services.AddScoped<ICQRS.IGetInventoryById, GetInventoryByIdQueryHandler>();
+builder.Services.AddScoped<ICQRS.IGetLast10Inventories, GetLast10InventoriesQueryHandler>();
+builder.Services.AddScoped<ICQRS.IGetPopular5Inventories, GetPopular5InventoriesQueryHandler>();
 builder.Services.AddScoped<ICQRS.IAddInventoryField, AddInventoryFieldCommandHandler>();
 builder.Services.AddScoped<ICQRS.IAddInventoryCustomIdRules, AddInventoryCustomIdRulesCommandHandler>();
 builder.Services.AddScoped<ICQRS.IUpdateInventoryAccess, UpdateInventoryAccessCommandHandler>();

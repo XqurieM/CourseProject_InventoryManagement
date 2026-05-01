@@ -9,6 +9,7 @@ using CourseProject_InventoryManagement.Application.Features.CQRS.Queries.Genera
 using CourseProject_InventoryManagement.Application.Features.CQRS.Queries.InventoryQueries;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Queries.UserQueries;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Results.GeneralResults;
+using CourseProject_InventoryManagement.Application.Features.CQRS.Results.InventoryResults;
 
 namespace CourseProject_InventoryManagement.Application.Features.CQRS
 {
@@ -60,6 +61,16 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS
         public interface IGetInventoryById
         {
             Task<Result<InventoryDto>> GetInventoryById(GetInventoryByIdQuery query, CancellationToken cancellationToken = default);
+        }
+
+        public interface IGetPopular5Inventories
+        {
+            Task<Result<List<GetInventoriesWithJoinInfosResult>>> GetPopular5Inventories(CancellationToken cancellationToken = default);
+        }
+
+        public interface IGetLast10Inventories
+        {
+            Task<Result<List<GetInventoriesWithJoinInfosResult>>> GetLast10Inventories(CancellationToken cancellationToken = default);
         }
 
         public interface IAddInventoryField

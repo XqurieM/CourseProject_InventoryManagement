@@ -2,6 +2,7 @@ using Ardalis.Result.AspNetCore;
 using CourseProject_InventoryManagement.Application.DTOs;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Commands.InventoryCommands;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Queries.InventoryQueries;
+using CourseProject_InventoryManagement.Application.Features.CQRS.Results.InventoryResults;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using static CourseProject_InventoryManagement.Application.Features.CQRS.ICQRS;
@@ -17,19 +18,18 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
         private readonly IAddInventoryField _addInventoryField;
         private readonly IAddInventoryCustomIdRules _addInventoryCustomIdRules;
         private readonly IUpdateInventoryAccess _updateInventoryAccess;
+        private readonly IGetPopular5Inventories _getPopular5Inventories;
+        private readonly IGetLast10Inventories _getLast10Inventories;
 
-        public InventoryController(
-            ICreateInventory createInventory,
-            IGetInventoryById getInventoryById,
-            IAddInventoryField addInventoryField,
-            IAddInventoryCustomIdRules addInventoryCustomIdRules,
-            IUpdateInventoryAccess updateInventoryAccess)
+        public InventoryController(ICreateInventory createInventory, IGetInventoryById getInventoryById, IAddInventoryField addInventoryField, IAddInventoryCustomIdRules addInventoryCustomIdRules, IUpdateInventoryAccess updateInventoryAccess, IGetPopular5Inventories getPopular5Inventories, IGetLast10Inventories getLast10Inventories)
         {
             _createInventory = createInventory;
             _getInventoryById = getInventoryById;
             _addInventoryField = addInventoryField;
             _addInventoryCustomIdRules = addInventoryCustomIdRules;
             _updateInventoryAccess = updateInventoryAccess;
+            _getPopular5Inventories = getPopular5Inventories;
+            _getLast10Inventories = getLast10Inventories;
         }
 
         [Authorize]
@@ -46,6 +46,22 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
         {
             var query = new GetInventoryByIdQuery { Id = id };
             var result = await _getInventoryById.GetInventoryById(query, cancellationToken);
+            return this.ToActionResult(result);
+        }
+
+        [Authorize]
+        [HttpGet]
+        public async Task<ActionResult<List<GetInventoriesWithJoinInfosResult>>> GetPopular5Inventories(CancellationToken cancellationToken)
+        {            
+            var result = await _getPopular5Inventories.GetPopular5Inventories(cancellationToken);
+            return this.ToActionResult(result);
+        }
+
+        [Authorize]
+        [HttpGet]
+        public async Task<ActionResult<List<GetInventoriesWithJoinInfosResult>>> GetLast10Inventories(CancellationToken cancellationToken)
+        {
+            var result = await _getLast10Inventories.GetLast10Inventories(cancellationToken);
             return this.ToActionResult(result);
         }
 

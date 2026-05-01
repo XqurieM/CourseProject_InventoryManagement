@@ -15,19 +15,31 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.G
 {
     public class GetDashboardStatisticsQueryHandler : ICQRS.IGetDashboardStatistics
     {
-        private readonly IGetCurrentUser _getCurrentUser;
+        private readonly IGetUsersById _getUsersById;
         private readonly IAppDbContext _context;
 
-        public GetDashboardStatisticsQueryHandler(IGetCurrentUser getCurrentUser, IAppDbContext context)
+        public GetDashboardStatisticsQueryHandler(IGetUsersById getUsersById, IAppDbContext context)
         {
-            _getCurrentUser = getCurrentUser;
+            _getUsersById = getUsersById;
             _context = context;
         }
 
         public async Task<Result<GetDashboardStatisticsResult>> GetDashboardStatistics(GetDashboardStatisticsQuery query, CancellationToken cancellationToken = default)
         {
-            var GetCurrentUser = await _getCurrentUser.GetCurrentUser(new Queries.AuthQueries.GetCurrentUserQuery{}, cancellationToken);
-            if(GetCurrentUser.Value.IsAdmin)
+            var GetCurrentUser = await _getUsersById.GetUsersById(new Queries.UserQueries.GetUserByIdQuery { Id = query.UserId }, cancellationToken);
+            
+            if (GetCurrentUser.Value.IsBlocked == true)
+            {
+                return Result<GetDashboardStatisticsResult>.Success(new GetDashboardStatisticsResult
+                {
+                    TotalInventoriesCount = -1,
+                    TotalItemsCount = -1,
+                    PublicInventoriesCount = -1,
+                    ActiveContributorsCount = -1
+                });
+            }
+
+            if (GetCurrentUser.Value.IsAdmin)
             {
                 var InventoryCount = _context.Inventories.Count();
                 var ItemsCount = _context.Items.Count();
@@ -42,11 +54,11 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.G
                 });
             }
             else
-            {
+            {               
                 var inventoryCount = _context.Inventories.Where(i => i.CreatedByUserId == GetCurrentUser.Value.Id).Count();
                 var itemsCount = _context.Items.Where(i => i.CreatedByUserId == GetCurrentUser.Value.Id).Count();
-                var publicInventoriesCount = _context.Inventories.Where(i => i.CreatedByUserId == GetCurrentUser.Value.Id && i.IsPublic).Count();
-                var activeContributorsCount = -1;
+                var publicInventoriesCount = _context.Inventories.Where(i => i.IsPublic).Count();
+                var activeContributorsCount = 1;
                 return Result<GetDashboardStatisticsResult>.Success(new GetDashboardStatisticsResult
                 {
                     TotalInventoriesCount = inventoryCount,
