@@ -10,6 +10,7 @@ using CourseProject_InventoryManagement.Application.Features.CQRS.Queries.Invent
 using CourseProject_InventoryManagement.Application.Features.CQRS.Queries.UserQueries;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Results.GeneralResults;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Results.InventoryResults;
+using CourseProject_InventoryManagement.Application.Features.CQRS.Results.ItemResults;
 
 namespace CourseProject_InventoryManagement.Application.Features.CQRS
 {
@@ -82,6 +83,10 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS
         {
             Task<Result<List<GetProfileInventoriesResult>>> GetOwnInventories(Guid UserId, CancellationToken cancellationToken = default);
         }
+        public interface IGetInventoryFieldsByInventoryId
+        {
+            Task<Result<List<GetInventoryFieldsByInventoryIdResult>>> GetInventoryFieldsByInventoryId(Guid inventoryId, CancellationToken cancellationToken = default);
+        }        
         public interface IAddInventoryField
         {
             Task<Result<Guid>> AddInventoryField(AddInventoryFieldCommand command, CancellationToken cancellationToken = default);
@@ -112,6 +117,14 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS
         public interface IGetItemsByInventoryId
         {
             Task<Result<List<ItemDto>>> GetItemsByInventoryId(Guid inventoryId, CancellationToken cancellationToken = default);
+        }
+        public interface IGetItemFieldValuesByItemId
+        {
+            Task<Result<List<ItemFieldValuesResult>>> GetItemFieldValuesByItemId(Guid itemId, CancellationToken cancellationToken = default);
+        }
+        public interface IGetItemFieldValuesByInventoryId
+        {
+            Task<Result<List<ItemFieldValuesResult>>> GetItemFieldValuesByInventoryId(Guid inventoryId, CancellationToken cancellationToken = default);
         }
         #endregion
 

@@ -22,8 +22,9 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
         private readonly IGetMyEditableInventories _getMyEditableInventories;
         private readonly IGetOwnInventories _getOwnInventories;
         private readonly IGetLast10Inventories _getLast10Inventories;
+        private readonly IGetInventoryFieldsByInventoryId _getInventoryFieldsByInventoryId;
 
-        public InventoryController(ICreateInventory createInventory, IGetInventoryById getInventoryById, IAddInventoryField addInventoryField, IAddInventoryCustomIdRules addInventoryCustomIdRules, IUpdateInventoryAccess updateInventoryAccess, IGetPopular5Inventories getPopular5Inventories, IGetMyEditableInventories getMyEditableInventories, IGetOwnInventories getOwnInventories, IGetLast10Inventories getLast10Inventories)
+        public InventoryController(ICreateInventory createInventory, IGetInventoryById getInventoryById, IAddInventoryField addInventoryField, IAddInventoryCustomIdRules addInventoryCustomIdRules, IUpdateInventoryAccess updateInventoryAccess, IGetPopular5Inventories getPopular5Inventories, IGetMyEditableInventories getMyEditableInventories, IGetOwnInventories getOwnInventories, IGetLast10Inventories getLast10Inventories, IGetInventoryFieldsByInventoryId getInventoryFieldsByInventoryId)
         {
             _createInventory = createInventory;
             _getInventoryById = getInventoryById;
@@ -34,6 +35,7 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
             _getMyEditableInventories = getMyEditableInventories;
             _getOwnInventories = getOwnInventories;
             _getLast10Inventories = getLast10Inventories;
+            _getInventoryFieldsByInventoryId = getInventoryFieldsByInventoryId;
         }
 
         [Authorize]
@@ -82,6 +84,14 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
         public async Task<ActionResult<List<GetProfileInventoriesResult>>> GetMyEditableInventories(Guid UserId, CancellationToken cancellationToken)
         {
             var result = await _getMyEditableInventories.GetMyEditableInventories(UserId,cancellationToken);
+            return this.ToActionResult(result);
+        }
+
+        [Authorize]
+        [HttpGet]
+        public async Task<ActionResult<List<GetInventoryFieldsByInventoryIdResult>>> GetInventoryFieldsByInventoryId(Guid inventoryId, CancellationToken cancellationToken)
+        {
+            var result = await _getInventoryFieldsByInventoryId.GetInventoryFieldsByInventoryId(inventoryId, cancellationToken);
             return this.ToActionResult(result);
         }
 

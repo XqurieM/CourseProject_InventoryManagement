@@ -23,6 +23,7 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.I
         {
             var items = from p in _context.Items
                         join j in _context.Inventories on p.InventoryId equals j.Id
+                        where p.InventoryId == inventoryId
                         select new ItemDto
                         {
                             Id = p.Id,

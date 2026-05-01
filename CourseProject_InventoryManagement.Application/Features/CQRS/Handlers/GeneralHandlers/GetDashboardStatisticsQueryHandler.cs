@@ -4,6 +4,7 @@ using CourseProject_InventoryManagement.Application.Abstractions.Persistence;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Queries.GeneralQueries;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Results.GeneralResults;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,20 +16,32 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.G
 {
     public class GetDashboardStatisticsQueryHandler : ICQRS.IGetDashboardStatistics
     {
-        private readonly IGetUsersById _getUsersById;
+        private readonly ICurrentUserService _currentUserService;
         private readonly IAppDbContext _context;
 
-        public GetDashboardStatisticsQueryHandler(IGetUsersById getUsersById, IAppDbContext context)
+        public GetDashboardStatisticsQueryHandler(ICurrentUserService currentUserService, IAppDbContext context)
         {
-            _getUsersById = getUsersById;
+            _currentUserService = currentUserService;
             _context = context;
         }
 
         public async Task<Result<GetDashboardStatisticsResult>> GetDashboardStatistics(GetDashboardStatisticsQuery query, CancellationToken cancellationToken = default)
         {
-            var GetCurrentUser = await _getUsersById.GetUsersById(new Queries.UserQueries.GetUserByIdQuery { Id = query.UserId }, cancellationToken);
-            
-            if (GetCurrentUser.Value.IsBlocked == true)
+            if (!_currentUserService.UserId.HasValue)
+            {
+                return Result<GetDashboardStatisticsResult>.Unauthorized("Authenticated user was not found.");
+            }
+
+            var currentUser = await _context.Users
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == _currentUserService.UserId.Value && !x.IsDeleted, cancellationToken);
+
+            if (currentUser is null)
+            {
+                return Result<GetDashboardStatisticsResult>.NotFound("Authenticated user was not found.");
+            }
+
+            if (currentUser.IsBlocked)
             {
                 return Result<GetDashboardStatisticsResult>.Success(new GetDashboardStatisticsResult
                 {
@@ -39,7 +52,7 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.G
                 });
             }
 
-            if (GetCurrentUser.Value.IsAdmin)
+            if (currentUser.IsAdmin)
             {
                 var InventoryCount = _context.Inventories.Count();
                 var ItemsCount = _context.Items.Count();
@@ -55,8 +68,8 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.G
             }
             else
             {               
-                var inventoryCount = _context.Inventories.Where(i => i.CreatedByUserId == GetCurrentUser.Value.Id).Count();
-                var itemsCount = _context.Items.Where(i => i.CreatedByUserId == GetCurrentUser.Value.Id).Count();
+                var inventoryCount = _context.Inventories.Where(i => i.CreatedByUserId == currentUser.Id).Count();
+                var itemsCount = _context.Items.Where(i => i.CreatedByUserId == currentUser.Id).Count();
                 var publicInventoriesCount = _context.Inventories.Where(i => i.IsPublic).Count();
                 var activeContributorsCount = 1;
                 return Result<GetDashboardStatisticsResult>.Success(new GetDashboardStatisticsResult

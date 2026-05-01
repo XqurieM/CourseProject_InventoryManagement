@@ -1,6 +1,7 @@
 using Ardalis.Result.AspNetCore;
 using CourseProject_InventoryManagement.Application.DTOs;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Commands.ItemCommands;
+using CourseProject_InventoryManagement.Application.Features.CQRS.Results.ItemResults;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using static CourseProject_InventoryManagement.Application.Features.CQRS.ICQRS;
@@ -14,12 +15,15 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
         private readonly IAddItem _addItem;
         private readonly IAddItemFieldValues _addItemFieldValues;
         private readonly IGetItemsByInventoryId _getItemsByInventoryId;
-
-        public ItemController(IAddItem addItem, IAddItemFieldValues addItemFieldValues, IGetItemsByInventoryId getItemsByInventoryId)
+        private readonly IGetItemFieldValuesByItemId _getItemFieldValuesByItemId;
+        private readonly IGetItemFieldValuesByInventoryId _getItemFieldValuesByInventoryId;
+        public ItemController(IAddItem addItem, IAddItemFieldValues addItemFieldValues, IGetItemsByInventoryId getItemsByInventoryId, IGetItemFieldValuesByItemId getItemFieldValuesByItemId, IGetItemFieldValuesByInventoryId getItemFieldValuesByInventoryId)
         {
             _addItem = addItem;
             _addItemFieldValues = addItemFieldValues;
             _getItemsByInventoryId = getItemsByInventoryId;
+            _getItemFieldValuesByItemId = getItemFieldValuesByItemId;
+            _getItemFieldValuesByInventoryId = getItemFieldValuesByInventoryId;
         }
 
         [Authorize]
@@ -44,6 +48,22 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
         {
             var result = await _getItemsByInventoryId.GetItemsByInventoryId(inventoryId, cancellationToken);
             return this.ToActionResult(result);    
+        }
+
+        [Authorize]
+        [HttpGet]
+        public async Task<ActionResult<List<ItemFieldValuesResult>>> GetItemFieldValuesByItemId(Guid itemId, CancellationToken cancellationToken)
+        {
+            var result = await _getItemFieldValuesByItemId.GetItemFieldValuesByItemId(itemId, cancellationToken);
+            return this.ToActionResult(result);
+        }
+
+        [Authorize]
+        [HttpGet]
+        public async Task<ActionResult<List<ItemFieldValuesResult>>> GetItemFieldValuesByInventoryId(Guid inventoryId, CancellationToken cancellationToken)
+        {
+            var result = await _getItemFieldValuesByInventoryId.GetItemFieldValuesByInventoryId(inventoryId, cancellationToken);
+            return this.ToActionResult(result);
         }
     }
 }
