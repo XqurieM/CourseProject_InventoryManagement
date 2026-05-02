@@ -1,6 +1,7 @@
 using Ardalis.Result.AspNetCore;
 using CourseProject_InventoryManagement.Application.Abstractions.Authentication;
 using CourseProject_InventoryManagement.Application.Abstractions.Authorization;
+using CourseProject_InventoryManagement.Application.Abstractions.Localization;
 using CourseProject_InventoryManagement.Application.Abstractions.Persistence;
 using CourseProject_InventoryManagement.Application.Features.CQRS;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.AuthHandlers;
@@ -13,7 +14,9 @@ using CourseProject_InventoryManagement.Domain.Interfaces;
 using CourseProject_InventoryManagement.Domain.Services;
 using CourseProject_InventoryManagement.Infrastructure.Authentication;
 using CourseProject_InventoryManagement.Infrastructure.Authorization;
+using CourseProject_InventoryManagement.Infrastructure.Localization;
 using CourseProject_InventoryManagement.Infrastructure.Persistence.Context;
+using CourseProject_InventoryManagement.WebApi.Options;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -58,7 +61,9 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddMemoryCache();
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection(JwtSettings.SectionName));
+builder.Services.Configure<MicrosoftExternalLoginOptions>(builder.Configuration.GetSection(MicrosoftExternalLoginOptions.SectionName));
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
@@ -71,6 +76,7 @@ builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IInventoryAuthorizationService, InventoryAuthorizationService>();
+builder.Services.AddScoped<ILocalizationCacheService, LocalizationCacheService>();
 
 builder.Services.AddScoped<ICQRS.IRegisterUser, RegisterUserCommandHandler>();
 builder.Services.AddScoped<ICQRS.ILoginUser, LoginUserCommandHandler>();
@@ -103,6 +109,11 @@ builder.Services.AddScoped<ICQRS.IDeleteUser, DeleteUserCommandHandler>();
 builder.Services.AddScoped<ICQRS.IGrantAdminRole, GrantAdminRoleCommandHandler>();
 builder.Services.AddScoped<ICQRS.IRevokeAdminRole, RevokeAdminRoleCommandHandler>();
 builder.Services.AddScoped<ICQRS.IGetDashboardStatistics, GetDashboardStatisticsQueryHandler>();
+builder.Services.AddScoped<ICQRS.IGetLocalizationResources, GetLocalizationResourcesQueryHandler>();
+builder.Services.AddScoped<ICQRS.IGetLocalizationResourcesAdminList, GetLocalizationResourcesAdminListQueryHandler>();
+builder.Services.AddScoped<ICQRS.IUpsertLocalizationResource, UpsertLocalizationResourceCommandHandler>();
+builder.Services.AddScoped<ICQRS.IBulkUpsertLocalizationResources, BulkUpsertLocalizationResourcesCommandHandler>();
+builder.Services.AddScoped<ICQRS.IDeleteLocalizationResource, DeleteLocalizationResourceCommandHandler>();
 builder.Services.AddScoped<ICustomIdGenerator, CustomIdGenerator>();
 
 var jwtSettings = builder.Configuration.GetSection(JwtSettings.SectionName).Get<JwtSettings>()
@@ -126,6 +137,19 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowUIPort",
+        policy =>
+        {
+            policy.WithOrigins("https://localhost:7214") 
+                  .AllowAnyHeader()
+                  .AllowAnyMethod()
+                  .AllowCredentials(); 
+        });
+});
+
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -133,7 +157,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+app.UseRouting();
+app.UseCors("AllowUIPort");
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();

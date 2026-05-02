@@ -1,6 +1,7 @@
 using Ardalis.Result;
 using CourseProject_InventoryManagement.Application.DTOs;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Commands.AuthCommands;
+using CourseProject_InventoryManagement.Application.Features.CQRS.Commands.GeneralCommands;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Commands.InventoryCommands;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Commands.ItemCommands;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Commands.UserCommands;
@@ -24,7 +25,7 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS
 
         public interface ILoginUser
         {
-            Task<Result<AuthTokenDto>> LoginUser(LoginUserCommand command, CancellationToken cancellationToken = default);
+            Task<Result<AuthTokenDto>> LoginUser(LoginUserCommand command, CancellationToken cancellationToken = default, bool isExternalLogin = false);
         }
 
         public interface IRefreshAccessToken
@@ -169,6 +170,31 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS
         public interface IGetDashboardStatistics
         {
             Task<Result<GetDashboardStatisticsResult>> GetDashboardStatistics(GetDashboardStatisticsQuery query, CancellationToken cancellationToken = default);
+        }
+
+        public interface IGetLocalizationResources
+        {
+            Task<Result<GetLocalizationResourcesResult>> GetLocalizationResources(GetLocalizationResourcesQuery query, CancellationToken cancellationToken = default);
+        }
+
+        public interface IGetLocalizationResourcesAdminList
+        {
+            Task<Result<List<LocalizationResourceAdminResult>>> GetLocalizationResourcesAdminList(GetLocalizationResourcesAdminListQuery query, CancellationToken cancellationToken = default);
+        }
+
+        public interface IUpsertLocalizationResource
+        {
+            Task<Result<Guid>> UpsertLocalizationResource(UpsertLocalizationResourceCommand command, CancellationToken cancellationToken = default);
+        }
+
+        public interface IBulkUpsertLocalizationResources
+        {
+            Task<Result<List<Guid>>> BulkUpsertLocalizationResources(BulkUpsertLocalizationResourcesCommand command, CancellationToken cancellationToken = default);
+        }
+
+        public interface IDeleteLocalizationResource
+        {
+            Task<Result<Guid>> DeleteLocalizationResource(DeleteLocalizationResourceCommand command, CancellationToken cancellationToken = default);
         }
 
         #endregion

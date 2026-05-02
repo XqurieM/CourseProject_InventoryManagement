@@ -26,7 +26,7 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.A
             _refreshTokenService = refreshTokenService;
         }
 
-        public async Task<Result<AuthTokenDto>> LoginUser(LoginUserCommand command, CancellationToken cancellationToken = default)
+        public async Task<Result<AuthTokenDto>> LoginUser(LoginUserCommand command, CancellationToken cancellationToken = default,bool isExternalLogin = false)
         {
             if (string.IsNullOrWhiteSpace(command.EmailOrUserName) || string.IsNullOrWhiteSpace(command.Password))
             {
@@ -41,7 +41,7 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.A
                     (x.NormalizedEmail == normalizedValue || x.NormalizedUserName == normalizedValue),
                     cancellationToken);
 
-            if (user is null || !_passwordHasher.VerifyPassword(command.Password, user.PasswordHash))
+            if (user is null || (!_passwordHasher.VerifyPassword(command.Password, user.PasswordHash) && !isExternalLogin))
             {
                 return Result<AuthTokenDto>.Unauthorized("Invalid credentials.");
             }

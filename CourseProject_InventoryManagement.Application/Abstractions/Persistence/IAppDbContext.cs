@@ -21,6 +21,7 @@ namespace CourseProject_InventoryManagement.Application.Abstractions.Persistence
         DbSet<RefreshToken> RefreshTokens { get; }
         DbSet<Tag> Tags { get; }
         DbSet<InventoryTag> InventoryTags { get; }
+        DbSet<LocalizationResources> LocalizationResources { get; }
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }
 }

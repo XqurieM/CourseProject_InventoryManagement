@@ -28,6 +28,7 @@ public class AppDbContext :DbContext, IAppDbContext
 
     public DbSet<Comment> Comments => Set<Comment>();
     public DbSet<ItemLike> ItemLikes => Set<ItemLike>();
+    public DbSet<LocalizationResources> LocalizationResources => Set<LocalizationResources>();
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
