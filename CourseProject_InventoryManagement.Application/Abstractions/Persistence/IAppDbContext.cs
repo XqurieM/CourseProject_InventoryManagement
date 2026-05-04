@@ -1,10 +1,6 @@
-﻿using CourseProject_InventoryManagement.Domain.Entities;
+using CourseProject_InventoryManagement.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace CourseProject_InventoryManagement.Application.Abstractions.Persistence
 {
@@ -22,6 +18,7 @@ namespace CourseProject_InventoryManagement.Application.Abstractions.Persistence
         DbSet<Tag> Tags { get; }
         DbSet<InventoryTag> InventoryTags { get; }
         DbSet<LocalizationResources> LocalizationResources { get; }
+        EntityEntry<TEntity> Entry<TEntity>(TEntity entity) where TEntity : class;
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }
 }

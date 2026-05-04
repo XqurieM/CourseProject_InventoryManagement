@@ -60,6 +60,16 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS
             Task<Result<Guid>> CreateInventory(CreateInventoryCommand command, CancellationToken cancellationToken = default);
         }
 
+        public interface IUpdateInventory
+        {
+            Task<Result<Guid>> UpdateInventory(UpdateInventoryCommand command, CancellationToken cancellationToken = default);
+        }
+
+        public interface IDeleteInventory
+        {
+            Task<Result<Guid>> DeleteInventory(DeleteInventoryCommand command, CancellationToken cancellationToken = default);
+        }
+
         public interface IGetInventoryById
         {
             Task<Result<InventoryDto>> GetInventoryById(GetInventoryByIdQuery query, CancellationToken cancellationToken = default);

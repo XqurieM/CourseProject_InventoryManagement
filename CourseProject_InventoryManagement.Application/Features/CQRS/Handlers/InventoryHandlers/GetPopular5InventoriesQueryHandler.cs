@@ -32,6 +32,7 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.I
                                   Id = p.Id,
                                   Title = p.Title,
                                   Description = p.Description,
+                                  ImageUrl = p.ImageUrl,
                                   CategoryId = p.CategoryId,
                                   CategoryName = c.Name,
                                   CreatedByUserId = p.CreatedByUserId,

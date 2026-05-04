@@ -99,6 +99,8 @@ builder.Services.AddScoped<ICQRS.IGetAllTags, GetAllTagsQueryHandler>();
 builder.Services.AddScoped<ICQRS.IAddInventoryField, AddInventoryFieldCommandHandler>();
 builder.Services.AddScoped<ICQRS.IAddInventoryCustomIdRules, AddInventoryCustomIdRulesCommandHandler>();
 builder.Services.AddScoped<ICQRS.IUpdateInventoryAccess, UpdateInventoryAccessCommandHandler>();
+builder.Services.AddScoped<ICQRS.IUpdateInventory, UpdateInventoryCommandHandler>();
+builder.Services.AddScoped<ICQRS.IDeleteInventory, DeleteInventoryCommandHandler>();
 builder.Services.AddScoped<ICQRS.IAddItem, AddItemCommandHandler>();
 builder.Services.AddScoped<ICQRS.IAddItemFieldValues, AddItemFieldValuesCommandHandler>();
 builder.Services.AddScoped<ICQRS.IGetUsers, GetUsersQueryHandler>();
@@ -160,6 +162,7 @@ if (app.Environment.IsDevelopment())
 app.UseRouting();
 app.UseCors("AllowUIPort");
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
