@@ -25,7 +25,9 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
         private readonly IGetInventoryFieldsByInventoryId _getInventoryFieldsByInventoryId;
         private readonly IUpdateInventory _updateInventory;
         private readonly IDeleteInventory _deleteInventory;
-        public InventoryController(ICreateInventory createInventory, IGetInventoryById getInventoryById, IAddInventoryField addInventoryField, IAddInventoryCustomIdRules addInventoryCustomIdRules, IUpdateInventoryAccess updateInventoryAccess, IGetPopular5Inventories getPopular5Inventories, IGetMyEditableInventories getMyEditableInventories, IGetOwnInventories getOwnInventories, IGetLast10Inventories getLast10Inventories, IGetInventoryFieldsByInventoryId getInventoryFieldsByInventoryId, IUpdateInventory updateInventory, IDeleteInventory deleteInventory)
+        private readonly IGetInventoryAccessList _getInventoryAccessList;
+
+        public InventoryController(ICreateInventory createInventory, IGetInventoryById getInventoryById, IAddInventoryField addInventoryField, IAddInventoryCustomIdRules addInventoryCustomIdRules, IUpdateInventoryAccess updateInventoryAccess, IGetPopular5Inventories getPopular5Inventories, IGetMyEditableInventories getMyEditableInventories, IGetOwnInventories getOwnInventories, IGetLast10Inventories getLast10Inventories, IGetInventoryFieldsByInventoryId getInventoryFieldsByInventoryId, IUpdateInventory updateInventory, IDeleteInventory deleteInventory, IGetInventoryAccessList getInventoryAccessList)
         {
             _createInventory = createInventory;
             _getInventoryById = getInventoryById;
@@ -39,6 +41,7 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
             _getInventoryFieldsByInventoryId = getInventoryFieldsByInventoryId;
             _updateInventory = updateInventory;
             _deleteInventory = deleteInventory;
+            _getInventoryAccessList = getInventoryAccessList;
         }
 
         [Authorize]
@@ -98,6 +101,14 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
             return this.ToActionResult(result);
         }
 
+        [Authorize]
+        [HttpGet]
+        public async Task<ActionResult<List<InventoryAccessListDto>>> GetInventoryAccessList(GetInventoryAccessListQuery query, CancellationToken cancellationToken)
+        {
+            var result = await _getInventoryAccessList.GetInventoryAccessList(query.InventoryId, cancellationToken);
+            return this.ToActionResult(result);
+        }
+            
         [Authorize]
         [HttpPost]
         public async Task<ActionResult<Guid>> AddInventoryField(AddInventoryFieldCommand command, CancellationToken cancellationToken)

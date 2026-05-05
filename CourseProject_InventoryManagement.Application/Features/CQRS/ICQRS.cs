@@ -97,7 +97,11 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS
         public interface IGetInventoryFieldsByInventoryId
         {
             Task<Result<List<GetInventoryFieldsByInventoryIdResult>>> GetInventoryFieldsByInventoryId(Guid inventoryId, CancellationToken cancellationToken = default);
-        }        
+        }
+        public interface IGetInventoryAccessList
+        {
+            Task<Result<List<InventoryAccessListDto>>> GetInventoryAccessList(Guid inventoryId, CancellationToken cancellationToken = default);
+        }
         public interface IAddInventoryField
         {
             Task<Result<Guid>> AddInventoryField(AddInventoryFieldCommand command, CancellationToken cancellationToken = default);
