@@ -44,7 +44,7 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.I
             }
 
             var canManage = await _inventoryAuthorizationService
-                .CanManageInventoryAsync(command.Id, userResult.Value.Id, cancellationToken);
+                .CanManageInventoryAsync(command.InventoryId, userResult.Value.Id, cancellationToken);
 
             if (!canManage)
             {

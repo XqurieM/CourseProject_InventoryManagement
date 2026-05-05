@@ -28,15 +28,17 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.I
         {
             var inventory = await _context.Inventories
                 .AsNoTracking()
-                .Where(x => x.Id == query.Id)
+                .Where(x => x.Id == query.Id && !x.IsDeleted)
                 .Select(x => new InventoryDto
                 {
                     Id = x.Id,
                     Title = x.Title,
                     Description = x.Description,
+                    CategoryId = x.CategoryId,
                     CategoryName = x.Category.Name,
                     IsPublic = x.IsPublic,
                     ImageUrl = x.ImageUrl,
+                    RowVersion = x.RowVersion,
                     CreatedAtUtc = x.CreatedAtUtc,
                     CreatedByUserId = x.CreatedByUserId
                 })
