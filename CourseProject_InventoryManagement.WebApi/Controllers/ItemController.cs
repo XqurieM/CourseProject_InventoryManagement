@@ -17,13 +17,16 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
         private readonly IGetItemsByInventoryId _getItemsByInventoryId;
         private readonly IGetItemFieldValuesByItemId _getItemFieldValuesByItemId;
         private readonly IGetItemFieldValuesByInventoryId _getItemFieldValuesByInventoryId;
-        public ItemController(IAddItem addItem, IAddItemFieldValues addItemFieldValues, IGetItemsByInventoryId getItemsByInventoryId, IGetItemFieldValuesByItemId getItemFieldValuesByItemId, IGetItemFieldValuesByInventoryId getItemFieldValuesByInventoryId)
+        private readonly IUpdateItem _updateItem;
+
+        public ItemController(IAddItem addItem, IAddItemFieldValues addItemFieldValues, IGetItemsByInventoryId getItemsByInventoryId, IGetItemFieldValuesByItemId getItemFieldValuesByItemId, IGetItemFieldValuesByInventoryId getItemFieldValuesByInventoryId, IUpdateItem updateItem)
         {
             _addItem = addItem;
             _addItemFieldValues = addItemFieldValues;
             _getItemsByInventoryId = getItemsByInventoryId;
             _getItemFieldValuesByItemId = getItemFieldValuesByItemId;
             _getItemFieldValuesByInventoryId = getItemFieldValuesByInventoryId;
+            _updateItem = updateItem;
         }
 
         [Authorize]
@@ -39,6 +42,14 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
         public async Task<ActionResult<Guid>> AddItemFieldValues(AddItemFieldValuesCommand command, CancellationToken cancellationToken)
         {
             var result = await _addItemFieldValues.AddItemFieldValues(command, cancellationToken);
+            return this.ToActionResult(result);
+        }
+
+        [Authorize]
+        [HttpPost]
+        public async Task<ActionResult<Guid>> UpdateItem(UpdateItemCommand command, CancellationToken cancellationToken)
+        {
+            var result = await _updateItem.UpdateItem(command, cancellationToken);
             return this.ToActionResult(result);
         }
 

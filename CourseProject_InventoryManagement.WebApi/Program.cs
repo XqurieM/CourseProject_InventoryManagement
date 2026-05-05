@@ -95,11 +95,13 @@ builder.Services.AddScoped<ICQRS.IGetItemsByInventoryId, GetItemsByInventoryIdQu
 builder.Services.AddScoped<ICQRS.IGetItemFieldValuesByInventoryId, GetItemFieldValuesByInventoryIdQueryHandler>();
 builder.Services.AddScoped<ICQRS.IGetItemFieldValuesByItemId, GetItemFieldValuesByItemIdQueryHandler>();
 builder.Services.AddScoped<ICQRS.IGetInventoryFieldsByInventoryId, GetInventoryFieldsByInventoryIdQueryHandler>();
+builder.Services.AddScoped<ICQRS.IGetInventoryAccessList, GetInventoryAccessListQueryHandler>();
 builder.Services.AddScoped<ICQRS.IGetAllTags, GetAllTagsQueryHandler>();
 builder.Services.AddScoped<ICQRS.IAddInventoryField, AddInventoryFieldCommandHandler>();
 builder.Services.AddScoped<ICQRS.IAddInventoryCustomIdRules, AddInventoryCustomIdRulesCommandHandler>();
 builder.Services.AddScoped<ICQRS.IUpdateInventoryAccess, UpdateInventoryAccessCommandHandler>();
 builder.Services.AddScoped<ICQRS.IUpdateInventory, UpdateInventoryCommandHandler>();
+builder.Services.AddScoped<ICQRS.IUpdateItem, UpdateItemCommandHandler>();
 builder.Services.AddScoped<ICQRS.IDeleteInventory, DeleteInventoryCommandHandler>();
 builder.Services.AddScoped<ICQRS.IAddItem, AddItemCommandHandler>();
 builder.Services.AddScoped<ICQRS.IAddItemFieldValues, AddItemFieldValuesCommandHandler>();
