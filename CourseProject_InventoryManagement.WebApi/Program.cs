@@ -102,6 +102,7 @@ builder.Services.AddScoped<ICQRS.IAddInventoryCustomIdRules, AddInventoryCustomI
 builder.Services.AddScoped<ICQRS.IUpdateInventoryAccess, UpdateInventoryAccessCommandHandler>();
 builder.Services.AddScoped<ICQRS.IUpdateInventory, UpdateInventoryCommandHandler>();
 builder.Services.AddScoped<ICQRS.IUpdateItem, UpdateItemCommandHandler>();
+builder.Services.AddScoped<ICQRS.IDeleteItem, DeleteItemCommandHandler>();
 builder.Services.AddScoped<ICQRS.IDeleteInventory, DeleteInventoryCommandHandler>();
 builder.Services.AddScoped<ICQRS.IAddItem, AddItemCommandHandler>();
 builder.Services.AddScoped<ICQRS.IAddItemFieldValues, AddItemFieldValuesCommandHandler>();

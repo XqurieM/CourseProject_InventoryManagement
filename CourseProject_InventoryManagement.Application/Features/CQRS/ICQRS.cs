@@ -128,12 +128,14 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS
         {
             Task<Result<Guid>> AddItemFieldValues(AddItemFieldValuesCommand command, CancellationToken cancellationToken = default);
         }
-
         public interface IUpdateItem
         {
             Task<Result<Guid>> UpdateItem(UpdateItemCommand command, CancellationToken cancellationToken = default);
         }
-
+        public interface IDeleteItem
+        {
+            Task<Result<Guid>> DeleteItem(DeleteItemCommand command, CancellationToken cancellationToken = default);
+        }
         public interface IGetItemsByInventoryId
         {
             Task<Result<List<ItemDto>>> GetItemsByInventoryId(Guid inventoryId, CancellationToken cancellationToken = default);

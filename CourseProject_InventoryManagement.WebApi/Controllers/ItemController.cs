@@ -18,8 +18,9 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
         private readonly IGetItemFieldValuesByItemId _getItemFieldValuesByItemId;
         private readonly IGetItemFieldValuesByInventoryId _getItemFieldValuesByInventoryId;
         private readonly IUpdateItem _updateItem;
+        private readonly IDeleteItem _deleteItem;
 
-        public ItemController(IAddItem addItem, IAddItemFieldValues addItemFieldValues, IGetItemsByInventoryId getItemsByInventoryId, IGetItemFieldValuesByItemId getItemFieldValuesByItemId, IGetItemFieldValuesByInventoryId getItemFieldValuesByInventoryId, IUpdateItem updateItem)
+        public ItemController(IAddItem addItem, IAddItemFieldValues addItemFieldValues, IGetItemsByInventoryId getItemsByInventoryId, IGetItemFieldValuesByItemId getItemFieldValuesByItemId, IGetItemFieldValuesByInventoryId getItemFieldValuesByInventoryId, IUpdateItem updateItem, IDeleteItem deleteItem)
         {
             _addItem = addItem;
             _addItemFieldValues = addItemFieldValues;
@@ -27,6 +28,7 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
             _getItemFieldValuesByItemId = getItemFieldValuesByItemId;
             _getItemFieldValuesByInventoryId = getItemFieldValuesByInventoryId;
             _updateItem = updateItem;
+            _deleteItem = deleteItem;
         }
 
         [Authorize]
@@ -50,6 +52,14 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
         public async Task<ActionResult<Guid>> UpdateItem(UpdateItemCommand command, CancellationToken cancellationToken)
         {
             var result = await _updateItem.UpdateItem(command, cancellationToken);
+            return this.ToActionResult(result);
+        }
+
+        [Authorize]
+        [HttpPost]
+        public async Task<ActionResult<Guid>> DeleteItem(DeleteItemCommand command, CancellationToken cancellationToken)
+        {
+            var result = await _deleteItem.DeleteItem(command, cancellationToken);
             return this.ToActionResult(result);
         }
 
