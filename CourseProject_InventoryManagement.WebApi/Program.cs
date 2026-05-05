@@ -92,6 +92,7 @@ builder.Services.AddScoped<ICQRS.IGetPopular5Inventories, GetPopular5Inventories
 builder.Services.AddScoped<ICQRS.IGetMyEditableInventories, GetMyEditableInventoriesQueryHandler>();
 builder.Services.AddScoped<ICQRS.IGetOwnInventories, GetMyOwnInventoriesQueryHandler>();
 builder.Services.AddScoped<ICQRS.IGetItemsByInventoryId, GetItemsByInventoryIdQueryHandler>();
+builder.Services.AddScoped<ICQRS.IGetItemById, GetItemByIdQueryHandler>();
 builder.Services.AddScoped<ICQRS.IGetItemFieldValuesByInventoryId, GetItemFieldValuesByInventoryIdQueryHandler>();
 builder.Services.AddScoped<ICQRS.IGetItemFieldValuesByItemId, GetItemFieldValuesByItemIdQueryHandler>();
 builder.Services.AddScoped<ICQRS.IGetInventoryFieldsByInventoryId, GetInventoryFieldsByInventoryIdQueryHandler>();

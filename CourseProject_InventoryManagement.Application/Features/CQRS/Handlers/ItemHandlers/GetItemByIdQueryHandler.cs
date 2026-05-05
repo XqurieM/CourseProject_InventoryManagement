@@ -1,7 +1,7 @@
 ﻿using Ardalis.Result;
 using CourseProject_InventoryManagement.Application.Abstractions.Persistence;
 using CourseProject_InventoryManagement.Application.DTOs;
-using Microsoft.EntityFrameworkCore;
+using CourseProject_InventoryManagement.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,20 +10,20 @@ using System.Threading.Tasks;
 
 namespace CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.ItemHandlers
 {
-    public class GetItemsByInventoryIdQueryHandler : ICQRS.IGetItemsByInventoryId
+    public class GetItemByIdQueryHandler : ICQRS.IGetItemById
     {
         private readonly IAppDbContext _context;
 
-        public GetItemsByInventoryIdQueryHandler(IAppDbContext appDbContext)
+        public GetItemByIdQueryHandler(IAppDbContext context)
         {
-            _context = appDbContext;
+            _context = context;
         }
 
-        public async Task<Result<List<ItemDto>>> GetItemsByInventoryId(Guid inventoryId, CancellationToken cancellationToken = default)
+        public async Task<Result<ItemDto>> GetItemById(Guid itemId, CancellationToken cancellationToken = default)
         {
-            var items = from p in _context.Items
+            var items = (from p in _context.Items
                         join j in _context.Inventories on p.InventoryId equals j.Id
-                        where p.InventoryId == inventoryId
+                        where p.Id == itemId
                         select new ItemDto
                         {
                             Id = p.Id,
@@ -37,11 +37,11 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.I
                             IsDeleted = p.IsDeleted,
                             DeletedAtUtc = p.DeletedAtUtc ?? DateTime.MinValue,
                             ItemName = p.ItemName
-                        };
+                        }).FirstOrDefault();
 
 
 
-            return Result.Success(await items.ToListAsync(cancellationToken));
+            return items is not null ? Result.Success(items) : Result.NotFound();
         }
     }
 }

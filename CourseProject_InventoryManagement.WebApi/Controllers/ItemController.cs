@@ -19,8 +19,9 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
         private readonly IGetItemFieldValuesByInventoryId _getItemFieldValuesByInventoryId;
         private readonly IUpdateItem _updateItem;
         private readonly IDeleteItem _deleteItem;
+        private readonly IGetItemById _getItemById;
 
-        public ItemController(IAddItem addItem, IAddItemFieldValues addItemFieldValues, IGetItemsByInventoryId getItemsByInventoryId, IGetItemFieldValuesByItemId getItemFieldValuesByItemId, IGetItemFieldValuesByInventoryId getItemFieldValuesByInventoryId, IUpdateItem updateItem, IDeleteItem deleteItem)
+        public ItemController(IAddItem addItem, IAddItemFieldValues addItemFieldValues, IGetItemsByInventoryId getItemsByInventoryId, IGetItemFieldValuesByItemId getItemFieldValuesByItemId, IGetItemFieldValuesByInventoryId getItemFieldValuesByInventoryId, IUpdateItem updateItem, IDeleteItem deleteItem, IGetItemById getItemById)
         {
             _addItem = addItem;
             _addItemFieldValues = addItemFieldValues;
@@ -29,6 +30,7 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
             _getItemFieldValuesByInventoryId = getItemFieldValuesByInventoryId;
             _updateItem = updateItem;
             _deleteItem = deleteItem;
+            _getItemById = getItemById;
         }
 
         [Authorize]
@@ -69,6 +71,14 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
         {
             var result = await _getItemsByInventoryId.GetItemsByInventoryId(inventoryId, cancellationToken);
             return this.ToActionResult(result);    
+        }
+
+        [Authorize]
+        [HttpGet]
+        public async Task<ActionResult<ItemDto>> GetItemById(Guid itemId, CancellationToken cancellationToken)
+        {
+            var result = await _getItemById.GetItemById(itemId, cancellationToken);
+            return this.ToActionResult(result);
         }
 
         [Authorize]

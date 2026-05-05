@@ -140,6 +140,11 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS
         {
             Task<Result<List<ItemDto>>> GetItemsByInventoryId(Guid inventoryId, CancellationToken cancellationToken = default);
         }
+
+        public interface IGetItemById
+        {
+            Task<Result<ItemDto>> GetItemById(Guid itemId, CancellationToken cancellationToken = default);
+        }
         public interface IGetItemFieldValuesByItemId
         {
             Task<Result<List<ItemFieldValuesResult>>> GetItemFieldValuesByItemId(Guid itemId, CancellationToken cancellationToken = default);
