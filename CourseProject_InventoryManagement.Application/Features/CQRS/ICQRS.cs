@@ -237,7 +237,27 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS
         public interface ICreateCategory
         {
             Task<Result<Guid>> CreateCategory(CreateCategoryCommand command, CancellationToken cancellationToken = default);
-        }   
+        }
+
+        public interface IGetAllCategories
+        {
+            Task<Result<List<CategoryDto>>> GetAllCategories(CancellationToken cancellationToken = default);
+        }
+
+        public interface IGetCategoryById
+        {
+            Task<Result<CategoryDto>> GetCategoryById(Guid categoryId,CancellationToken cancellationToken = default);
+        }
+
+        public interface IUpdateCategory
+        {
+            Task<Result<Guid>> UpdateCategory(UpdateCategoryCommand command, CancellationToken cancellationToken = default);
+        }
+
+        public interface IDeleteCategory
+        {
+            Task<Result<Guid>> DeleteCategory(DeleteCategoryCommand command, CancellationToken cancellationToken = default);
+        }
         #endregion
     }
 }

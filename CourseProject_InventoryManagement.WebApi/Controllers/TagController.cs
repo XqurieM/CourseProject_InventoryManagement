@@ -8,7 +8,7 @@ using static CourseProject_InventoryManagement.Application.Features.CQRS.ICQRS;
 
 namespace CourseProject_InventoryManagement.WebApi.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]/[action]")]
     [ApiController]
     public class TagController : ControllerBase
     {
