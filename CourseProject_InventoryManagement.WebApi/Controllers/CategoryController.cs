@@ -53,7 +53,7 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
         }
 
         [Authorize]
-        [HttpPost]
+        [HttpGet]
         public async Task<ActionResult<List<CategoryDto>>> GetAllCategories(CancellationToken cancellationToken)
         {
             var result = await _getAllCategories.GetAllCategories(cancellationToken);

@@ -2,6 +2,7 @@ using Ardalis.Result;
 using CourseProject_InventoryManagement.Application.DTOs;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Commands.AuthCommands;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Commands.CategoryCommands;
+using CourseProject_InventoryManagement.Application.Features.CQRS.Commands.CommentCommands;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Commands.GeneralCommands;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Commands.InventoryCommands;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Commands.ItemCommands;
@@ -258,6 +259,14 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS
         {
             Task<Result<Guid>> DeleteCategory(DeleteCategoryCommand command, CancellationToken cancellationToken = default);
         }
+        #endregion
+
+        #region Comments
+        public interface ICreateNewComment
+        {
+            Task<Result<Guid>> CreateNewComment(CreateNewCommentCommand command, CancellationToken cancellationToken = default);
+        }
+
         #endregion
     }
 }

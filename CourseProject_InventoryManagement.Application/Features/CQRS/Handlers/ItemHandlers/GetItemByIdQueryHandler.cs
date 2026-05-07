@@ -1,29 +1,40 @@
-﻿using Ardalis.Result;
+using Ardalis.Result;
+using CourseProject_InventoryManagement.Application.Abstractions.Authentication;
+using CourseProject_InventoryManagement.Application.Abstractions.Authorization;
 using CourseProject_InventoryManagement.Application.Abstractions.Persistence;
 using CourseProject_InventoryManagement.Application.DTOs;
+using CourseProject_InventoryManagement.Application.Features.CQRS.Results;
 using CourseProject_InventoryManagement.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.ItemHandlers
 {
     public class GetItemByIdQueryHandler : ICQRS.IGetItemById
     {
         private readonly IAppDbContext _context;
+        private readonly IAuthenticatedUserService _authenticatedUserService;
+        private readonly IInventoryAuthorizationService _inventoryAuthorizationService;
 
-        public GetItemByIdQueryHandler(IAppDbContext context)
+        public GetItemByIdQueryHandler(
+            IAppDbContext context,
+            IAuthenticatedUserService authenticatedUserService,
+            IInventoryAuthorizationService inventoryAuthorizationService)
         {
             _context = context;
+            _authenticatedUserService = authenticatedUserService;
+            _inventoryAuthorizationService = inventoryAuthorizationService;
         }
 
         public async Task<Result<ItemDto>> GetItemById(Guid itemId, CancellationToken cancellationToken = default)
         {
-            var items = (from p in _context.Items
+            var userResult = await _authenticatedUserService.GetRequiredUserAsync(cancellationToken);
+            if (!userResult.IsSuccess)
+            {
+                return ResultFailureMapper.MapFailure<AppUser, ItemDto>(userResult);
+            }
+
+            var item = (from p in _context.Items
                         join j in _context.Inventories on p.InventoryId equals j.Id
-                        where p.Id == itemId
+                        where p.Id == itemId && !p.IsDeleted && !j.IsDeleted
                         select new ItemDto
                         {
                             Id = p.Id,
@@ -39,9 +50,18 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.I
                             ItemName = p.ItemName
                         }).FirstOrDefault();
 
+            if (item is null)
+            {
+                return Result<ItemDto>.NotFound("Item not found.");
+            }
 
+            var canViewInventory = await _inventoryAuthorizationService.CanViewInventoryAsync(item.InventoryId, userResult.Value.Id, cancellationToken);
+            if (!canViewInventory)
+            {
+                return Result<ItemDto>.Forbidden("You do not have permission to view this item.");
+            }
 
-            return items is not null ? Result.Success(items) : Result.NotFound();
+            return Result.Success(item);
         }
     }
 }

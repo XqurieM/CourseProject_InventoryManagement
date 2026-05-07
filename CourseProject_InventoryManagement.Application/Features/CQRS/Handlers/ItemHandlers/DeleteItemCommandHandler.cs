@@ -43,9 +43,9 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.I
                 return Result<Guid>.NotFound("Item not found.");
             }
 
-            var canManage = await _inventoryAuthorizationService
-                .CanManageInventoryAsync(item.InventoryId, userResult.Value.Id, cancellationToken);
-            if (!canManage)
+            var canDeleteItem = await _inventoryAuthorizationService
+                .CanDeleteItemsAsync(item.InventoryId, userResult.Value.Id, cancellationToken);
+            if (!canDeleteItem)
             {
                 return Result<Guid>.Forbidden("You do not have permission to delete this item.");
             }

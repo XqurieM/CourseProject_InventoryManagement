@@ -1,27 +1,46 @@
-﻿using Ardalis.Result;
+using Ardalis.Result;
+using CourseProject_InventoryManagement.Application.Abstractions.Authentication;
+using CourseProject_InventoryManagement.Application.Abstractions.Authorization;
 using CourseProject_InventoryManagement.Application.Abstractions.Persistence;
 using CourseProject_InventoryManagement.Application.DTOs;
+using CourseProject_InventoryManagement.Application.Features.CQRS.Results;
+using CourseProject_InventoryManagement.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.InventoryHandlers
 {
     public class GetInventoryAccessListQueryHandler : ICQRS.IGetInventoryAccessList
     {
-        IAppDbContext _context;
+        private readonly IAppDbContext _context;
+        private readonly IAuthenticatedUserService _authenticatedUserService;
+        private readonly IInventoryAuthorizationService _inventoryAuthorizationService;
 
-        public GetInventoryAccessListQueryHandler(IAppDbContext context)
+        public GetInventoryAccessListQueryHandler(
+            IAppDbContext context,
+            IAuthenticatedUserService authenticatedUserService,
+            IInventoryAuthorizationService inventoryAuthorizationService)
         {
             _context = context;
+            _authenticatedUserService = authenticatedUserService;
+            _inventoryAuthorizationService = inventoryAuthorizationService;
         }
 
         public async Task<Result<List<InventoryAccessListDto>>> GetInventoryAccessList(Guid inventoryId, CancellationToken cancellationToken = default)
         {
-            var accessList = _context.InventoryAccesses.Where(x => x.InventoryId == inventoryId)
+            var userResult = await _authenticatedUserService.GetRequiredUserAsync(cancellationToken);
+            if (!userResult.IsSuccess)
+            {
+                return ResultFailureMapper.MapFailure<AppUser, List<InventoryAccessListDto>>(userResult);
+            }
+
+            var canViewAccessList = await _inventoryAuthorizationService.CanViewInventoryAccessListAsync(inventoryId, userResult.Value.Id, cancellationToken);
+            if (!canViewAccessList)
+            {
+                return Result<List<InventoryAccessListDto>>.Forbidden("You do not have permission to view access settings for this inventory.");
+            }
+
+            var accessList = await _context.InventoryAccesses
+                .Where(x => x.InventoryId == inventoryId)
                 .Select(x => new InventoryAccessListDto
                 {
                     Id = x.Id,
@@ -31,9 +50,10 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.I
                     CreatedByUserId = x.CreatedByUserId,
                     UpdatedAtUtc = x.UpdatedAtUtc ?? x.CreatedAtUtc,
                     UpdatedByUserId = x.UpdatedByUserId ?? x.CreatedByUserId
-                }).ToListAsync(cancellationToken);
+                })
+                .ToListAsync(cancellationToken);
 
-            return Result<List<InventoryAccessListDto>>.Success(await accessList);
+            return Result<List<InventoryAccessListDto>>.Success(accessList);
         }
     }
 }

@@ -1,29 +1,47 @@
-﻿using Ardalis.Result;
+using Ardalis.Result;
+using CourseProject_InventoryManagement.Application.Abstractions.Authentication;
+using CourseProject_InventoryManagement.Application.Abstractions.Authorization;
 using CourseProject_InventoryManagement.Application.Abstractions.Persistence;
 using CourseProject_InventoryManagement.Application.DTOs;
+using CourseProject_InventoryManagement.Application.Features.CQRS.Results;
+using CourseProject_InventoryManagement.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.ItemHandlers
 {
     public class GetItemsByInventoryIdQueryHandler : ICQRS.IGetItemsByInventoryId
     {
         private readonly IAppDbContext _context;
+        private readonly IAuthenticatedUserService _authenticatedUserService;
+        private readonly IInventoryAuthorizationService _inventoryAuthorizationService;
 
-        public GetItemsByInventoryIdQueryHandler(IAppDbContext appDbContext)
+        public GetItemsByInventoryIdQueryHandler(
+            IAppDbContext appDbContext,
+            IAuthenticatedUserService authenticatedUserService,
+            IInventoryAuthorizationService inventoryAuthorizationService)
         {
             _context = appDbContext;
+            _authenticatedUserService = authenticatedUserService;
+            _inventoryAuthorizationService = inventoryAuthorizationService;
         }
 
         public async Task<Result<List<ItemDto>>> GetItemsByInventoryId(Guid inventoryId, CancellationToken cancellationToken = default)
         {
+            var userResult = await _authenticatedUserService.GetRequiredUserAsync(cancellationToken);
+            if (!userResult.IsSuccess)
+            {
+                return ResultFailureMapper.MapFailure<AppUser, List<ItemDto>>(userResult);
+            }
+
+            var canViewInventory = await _inventoryAuthorizationService.CanViewInventoryAsync(inventoryId, userResult.Value.Id, cancellationToken);
+            if (!canViewInventory)
+            {
+                return Result<List<ItemDto>>.Forbidden("You do not have permission to view items for this inventory.");
+            }
+
             var items = from p in _context.Items
                         join j in _context.Inventories on p.InventoryId equals j.Id
-                        where p.InventoryId == inventoryId
+                        where p.InventoryId == inventoryId && !p.IsDeleted && !j.IsDeleted
                         select new ItemDto
                         {
                             Id = p.Id,
@@ -38,8 +56,6 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.I
                             DeletedAtUtc = p.DeletedAtUtc ?? DateTime.MinValue,
                             ItemName = p.ItemName
                         };
-
-
 
             return Result.Success(await items.ToListAsync(cancellationToken));
         }

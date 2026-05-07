@@ -43,18 +43,10 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.I
                 return Result<Guid>.NotFound("Item not found.");
             }
 
-            var canManage = await _inventoryAuthorizationService
-                .CanManageInventoryAsync(command.InventoryId, userResult.Value.Id, cancellationToken);
+            var canUpdateItem = await _inventoryAuthorizationService
+                .CanUpdateItemsAsync(command.InventoryId, userResult.Value.Id, cancellationToken);
 
-            if (!canManage)
-            {
-                return Result<Guid>.Forbidden("You do not have permission to update this item.");
-            }
-
-            var canWriteItem = await _inventoryAuthorizationService
-                .CanWriteItemsAsync(command.InventoryId, userResult.Value.Id, cancellationToken);
-
-            if (!canWriteItem)
+            if (!canUpdateItem)
             {
                 return Result<Guid>.Forbidden("You do not have permission to update this item.");
             }

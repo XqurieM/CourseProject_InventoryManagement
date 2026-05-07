@@ -26,6 +26,12 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.I
 
         public async Task<Result<InventoryDto>> GetInventoryById(GetInventoryByIdQuery query, CancellationToken cancellationToken = default)
         {
+            var canViewInventory = await _inventoryAuthorizationService.CanViewInventoryAsync(query.Id, _currentUserService.UserId, cancellationToken);
+            if (!canViewInventory)
+            {
+                return Result<InventoryDto>.Forbidden("You do not have permission to view this inventory.");
+            }
+
             var inventory = await _context.Inventories
                 .AsNoTracking()
                 .Where(x => x.Id == query.Id && !x.IsDeleted)

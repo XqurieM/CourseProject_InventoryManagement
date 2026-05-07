@@ -1,15 +1,11 @@
-﻿using Ardalis.Result;
+using Ardalis.Result;
 using CourseProject_InventoryManagement.Application.Abstractions.Authentication;
+using CourseProject_InventoryManagement.Application.Abstractions.Authorization;
 using CourseProject_InventoryManagement.Application.Abstractions.Persistence;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Commands.CategoryCommands;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Results;
 using CourseProject_InventoryManagement.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.CategoryHandlers
 {
@@ -17,11 +13,16 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.C
     {
         private readonly IAppDbContext _context;
         private readonly IAuthenticatedUserService _authenticatedUserService;
+        private readonly IReferenceDataAuthorizationService _referenceDataAuthorizationService;
 
-        public CreateCategoryCommandHandler(IAppDbContext context, IAuthenticatedUserService authenticatedUserService)
+        public CreateCategoryCommandHandler(
+            IAppDbContext context,
+            IAuthenticatedUserService authenticatedUserService,
+            IReferenceDataAuthorizationService referenceDataAuthorizationService)
         {
             _context = context;
             _authenticatedUserService = authenticatedUserService;
+            _referenceDataAuthorizationService = referenceDataAuthorizationService;
         }
 
         public async Task<Result<Guid>> CreateCategory(CreateCategoryCommand command, CancellationToken cancellationToken = default)
@@ -30,6 +31,12 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.C
             if (!userResult.IsSuccess)
             {
                 return ResultFailureMapper.MapFailure<AppUser, Guid>(userResult);
+            }
+
+            var canManageCategories = await _referenceDataAuthorizationService.CanManageCategoriesAsync(userResult.Value.Id, cancellationToken);
+            if (!canManageCategories)
+            {
+                return Result<Guid>.Forbidden("You do not have permission to manage categories.");
             }
 
             if (string.IsNullOrWhiteSpace(command.Name))
@@ -50,19 +57,20 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.C
                 });
             }
 
+            var normalizedName = command.Name.Trim();
             var categoryExists = await _context.Categories
-                .AnyAsync(x => x.Name == command.Name && x.IsActive, cancellationToken);
+                .AnyAsync(x => x.Name == normalizedName && x.IsActive, cancellationToken);
 
             if (categoryExists)
             {
-                return Result<Guid>.NotFound("Category found. You can not add this category");
+                return Result<Guid>.Conflict("This category already exists.");
             }
 
             var category = new Category
             {
-                Name = command.Name.Trim(),
+                Name = normalizedName,
                 Description = command.Description?.Trim(),
-                IsActive = command.IsActive.Value                
+                IsActive = command.IsActive.Value
             };
 
             await _context.Categories.AddAsync(category, cancellationToken);
