@@ -1,6 +1,7 @@
 using Ardalis.Result;
 using CourseProject_InventoryManagement.Application.DTOs;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Commands.AuthCommands;
+using CourseProject_InventoryManagement.Application.Features.CQRS.Commands.CategoryCommands;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Commands.GeneralCommands;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Commands.InventoryCommands;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Commands.ItemCommands;
@@ -230,6 +231,13 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS
         {
             Task<Result<List<TagDto>>> GetAllTags(CancellationToken cancellationToken = default);
         }
+        #endregion
+
+        #region Category
+        public interface ICreateCategory
+        {
+            Task<Result<Guid>> CreateCategory(CreateCategoryCommand command, CancellationToken cancellationToken = default);
+        }   
         #endregion
     }
 }

@@ -13,6 +13,8 @@
 
   <ItemGroup>
     <Folder Include="Features\CQRS\Commands\GeneralCommands\" />
+    <Folder Include="Features\CQRS\Commands\CommentCommands\" />
+    <Folder Include="Features\CQRS\Handlers\CommentHandlers\" />
   </ItemGroup>
 
   <ItemGroup>
