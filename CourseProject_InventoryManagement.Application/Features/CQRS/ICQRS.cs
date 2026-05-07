@@ -267,6 +267,16 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS
             Task<Result<Guid>> CreateNewComment(CreateNewCommentCommand command, CancellationToken cancellationToken = default);
         }
 
+        public interface IGetInventoryComments
+        {
+            Task<Result<List<CommentDto>>> GetInventoryComments(Guid inventoryId, CancellationToken cancellationToken = default);
+        }
+
+        public interface IDeleteComment
+        {
+            Task<Result<Guid>> DeleteComment(Guid commentId, CancellationToken cancellationToken = default);
+        }
+
         #endregion
     }
 }

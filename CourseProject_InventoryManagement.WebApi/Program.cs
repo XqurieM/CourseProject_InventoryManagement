@@ -92,6 +92,7 @@ builder.Services.AddScoped<ICQRS.IGetCurrentUser, GetCurrentUserQueryHandler>();
 builder.Services.AddScoped<ICQRS.IUpdateUserLanguage, UpdateUserLanguageCommandHandler>();
 builder.Services.AddScoped<ICQRS.IUpdateUserTheme, UpdateUserThemeCommandHandler>();
 builder.Services.AddScoped<ICQRS.ICreateInventory, CreateInventoryCommandHandler>();
+builder.Services.AddScoped<ICQRS.IGetInventoryComments, GetInventoryCommentsQueryHandler>();
 builder.Services.AddScoped<ICQRS.IGetInventoryById, GetInventoryByIdQueryHandler>();
 builder.Services.AddScoped<ICQRS.IGetLast10Inventories, GetLast10InventoriesQueryHandler>();
 builder.Services.AddScoped<ICQRS.IGetPopular5Inventories, GetPopular5InventoriesQueryHandler>();
@@ -110,6 +111,7 @@ builder.Services.AddScoped<ICQRS.IUpdateInventoryAccess, UpdateInventoryAccessCo
 builder.Services.AddScoped<ICQRS.IUpdateInventory, UpdateInventoryCommandHandler>();
 builder.Services.AddScoped<ICQRS.IUpdateItem, UpdateItemCommandHandler>();
 builder.Services.AddScoped<ICQRS.IDeleteItem, DeleteItemCommandHandler>();
+builder.Services.AddScoped<ICQRS.IDeleteComment, DeleteCommentCommandHandler>();
 builder.Services.AddScoped<ICQRS.IDeleteInventory, DeleteInventoryCommandHandler>();
 builder.Services.AddScoped<ICQRS.IAddItem, AddItemCommandHandler>();
 builder.Services.AddScoped<ICQRS.ICreateNewComment, CreateNewCommentCommandHandler>();
