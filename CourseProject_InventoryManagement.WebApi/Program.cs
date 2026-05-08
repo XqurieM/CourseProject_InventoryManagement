@@ -25,6 +25,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using CourseProject_InventoryManagement.Application.Abstractions.Notifications;
+using CourseProject_InventoryManagement.WebApi.Hubs;
+using CourseProject_InventoryManagement.WebApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,6 +37,7 @@ builder.Services.AddControllers(options =>
 });
 
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSignalR();
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo { Title = "Course Project Inventory Management API", Version = "v1" });
@@ -83,6 +87,7 @@ builder.Services.AddScoped<IAdministrationAuthorizationService, AdministrationAu
 builder.Services.AddScoped<IReferenceDataAuthorizationService, ReferenceDataAuthorizationService>();
 builder.Services.AddScoped<IUserAuthorizationService, UserAuthorizationService>();
 builder.Services.AddScoped<ILocalizationCacheService, LocalizationCacheService>();
+builder.Services.AddScoped<ICommentNotificationService, CommentNotificationService>();
 
 builder.Services.AddScoped<ICQRS.IRegisterUser, RegisterUserCommandHandler>();
 builder.Services.AddScoped<ICQRS.ILoginUser, LoginUserCommandHandler>();
@@ -102,6 +107,7 @@ builder.Services.AddScoped<ICQRS.IGetItemsByInventoryId, GetItemsByInventoryIdQu
 builder.Services.AddScoped<ICQRS.IGetItemById, GetItemByIdQueryHandler>();
 builder.Services.AddScoped<ICQRS.IGetItemFieldValuesByInventoryId, GetItemFieldValuesByInventoryIdQueryHandler>();
 builder.Services.AddScoped<ICQRS.IGetItemFieldValuesByItemId, GetItemFieldValuesByItemIdQueryHandler>();
+builder.Services.AddScoped<ICQRS.IToggleItemLike, ToggleItemLikeCommandHandler>();
 builder.Services.AddScoped<ICQRS.IGetInventoryFieldsByInventoryId, GetInventoryFieldsByInventoryIdQueryHandler>();
 builder.Services.AddScoped<ICQRS.IGetInventoryAccessList, GetInventoryAccessListQueryHandler>();
 builder.Services.AddScoped<ICQRS.IGetAllTags, GetAllTagsQueryHandler>();
@@ -129,6 +135,7 @@ builder.Services.AddScoped<ICQRS.IDeleteUser, DeleteUserCommandHandler>();
 builder.Services.AddScoped<ICQRS.IGrantAdminRole, GrantAdminRoleCommandHandler>();
 builder.Services.AddScoped<ICQRS.IRevokeAdminRole, RevokeAdminRoleCommandHandler>();
 builder.Services.AddScoped<ICQRS.IGetDashboardStatistics, GetDashboardStatisticsQueryHandler>();
+builder.Services.AddScoped<ICQRS.IGlobalSearch, GlobalSearchQueryHandler>();
 builder.Services.AddScoped<ICQRS.IGetLocalizationResources, GetLocalizationResourcesQueryHandler>();
 builder.Services.AddScoped<ICQRS.IGetLocalizationResourcesAdminList, GetLocalizationResourcesAdminListQueryHandler>();
 builder.Services.AddScoped<ICQRS.IUpsertLocalizationResource, UpsertLocalizationResourceCommandHandler>();
@@ -184,4 +191,5 @@ app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapHub<CommentHub>("/commentHub");
 app.Run();

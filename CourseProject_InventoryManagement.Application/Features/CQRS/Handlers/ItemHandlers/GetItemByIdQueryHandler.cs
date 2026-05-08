@@ -47,7 +47,9 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.I
                             UpdatedByUserId = p.UpdatedByUserId ?? p.CreatedByUserId,
                             IsDeleted = p.IsDeleted,
                             DeletedAtUtc = p.DeletedAtUtc ?? DateTime.MinValue,
-                            ItemName = p.ItemName
+                            ItemName = p.ItemName,
+                            LikeCount = p.Likes.Count(),
+                            IsLikedByCurrentUser = p.Likes.Any(l => l.CreatedByUserId == userResult.Value.Id)
                         }).FirstOrDefault();
 
             if (item is null)

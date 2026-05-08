@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,5 +19,7 @@ namespace CourseProject_InventoryManagement.Application.DTOs
         public bool IsDeleted { get; set; }
         public DateTime DeletedAtUtc { get; set; }
         public string ItemName { get; set; }
+        public int LikeCount { get; set; }
+        public bool IsLikedByCurrentUser { get; set; }
     }
 }

@@ -1,9 +1,10 @@
-﻿using Ardalis.Result;
+using Ardalis.Result;
 using CourseProject_InventoryManagement.Application.Abstractions.Authentication;
 using CourseProject_InventoryManagement.Application.Abstractions.Authorization;
 using CourseProject_InventoryManagement.Application.Abstractions.Persistence;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Commands.CommentCommands;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Results;
+using CourseProject_InventoryManagement.Application.Abstractions.Notifications;
 using CourseProject_InventoryManagement.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -19,12 +20,14 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.C
         private readonly IAppDbContext _context;
         private readonly IAuthenticatedUserService _authenticatedUserService;
         private readonly IInventoryAuthorizationService _inventoryAuthorizationService;
+        private readonly ICommentNotificationService _commentNotificationService;
 
-        public CreateNewCommentCommandHandler(IAppDbContext context, IAuthenticatedUserService authenticatedUserService, IInventoryAuthorizationService inventoryAuthorizationService)
+        public CreateNewCommentCommandHandler(IAppDbContext context, IAuthenticatedUserService authenticatedUserService, IInventoryAuthorizationService inventoryAuthorizationService, ICommentNotificationService commentNotificationService)
         {
             _context = context;
             _authenticatedUserService = authenticatedUserService;
             _inventoryAuthorizationService = inventoryAuthorizationService;
+            _commentNotificationService = commentNotificationService;
         }
 
         public async Task<Result<Guid>> CreateNewComment(CreateNewCommentCommand command, CancellationToken cancellationToken = default)
@@ -58,6 +61,17 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.C
 
             await _context.Comments.AddAsync(comment, cancellationToken);
             await _context.SaveChangesAsync(cancellationToken);
+
+            // Notify connected clients
+            await _commentNotificationService.SendCommentAddedNotificationAsync(
+                command.InventoryId,
+                comment.Id,
+                comment.Content,
+                userResult.Value.Id,
+                userResult.Value.UserName,
+                comment.CreatedAtUtc,
+                cancellationToken);
+
             return Result<Guid>.Created(comment.Id);
         }
     }

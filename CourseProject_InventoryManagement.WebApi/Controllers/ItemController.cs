@@ -20,8 +20,9 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
         private readonly IUpdateItem _updateItem;
         private readonly IDeleteItem _deleteItem;
         private readonly IGetItemById _getItemById;
+        private readonly IToggleItemLike _toggleItemLike;
 
-        public ItemController(IAddItem addItem, IAddItemFieldValues addItemFieldValues, IGetItemsByInventoryId getItemsByInventoryId, IGetItemFieldValuesByItemId getItemFieldValuesByItemId, IGetItemFieldValuesByInventoryId getItemFieldValuesByInventoryId, IUpdateItem updateItem, IDeleteItem deleteItem, IGetItemById getItemById)
+        public ItemController(IAddItem addItem, IAddItemFieldValues addItemFieldValues, IGetItemsByInventoryId getItemsByInventoryId, IGetItemFieldValuesByItemId getItemFieldValuesByItemId, IGetItemFieldValuesByInventoryId getItemFieldValuesByInventoryId, IUpdateItem updateItem, IDeleteItem deleteItem, IGetItemById getItemById, IToggleItemLike toggleItemLike)
         {
             _addItem = addItem;
             _addItemFieldValues = addItemFieldValues;
@@ -31,6 +32,7 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
             _updateItem = updateItem;
             _deleteItem = deleteItem;
             _getItemById = getItemById;
+            _toggleItemLike = toggleItemLike;
         }
 
         [Authorize]
@@ -94,6 +96,14 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
         public async Task<ActionResult<List<ItemFieldValuesResult>>> GetItemFieldValuesByInventoryId(Guid inventoryId, CancellationToken cancellationToken)
         {
             var result = await _getItemFieldValuesByInventoryId.GetItemFieldValuesByInventoryId(inventoryId, cancellationToken);
+            return this.ToActionResult(result);
+        }
+
+        [Authorize]
+        [HttpPost]
+        public async Task<ActionResult<bool>> ToggleItemLike(ToggleItemLikeCommand command, CancellationToken cancellationToken)
+        {
+            var result = await _toggleItemLike.ToggleItemLike(command, cancellationToken);
             return this.ToActionResult(result);
         }
     }

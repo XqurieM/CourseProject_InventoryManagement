@@ -155,6 +155,11 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS
         {
             Task<Result<List<ItemFieldValuesResult>>> GetItemFieldValuesByInventoryId(Guid inventoryId, CancellationToken cancellationToken = default);
         }
+
+        public interface IToggleItemLike
+        {
+            Task<Result<bool>> ToggleItemLike(ToggleItemLikeCommand command, CancellationToken cancellationToken = default);
+        }
         #endregion
 
         #region UserManagementInterfaces
@@ -198,6 +203,11 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS
         public interface IGetDashboardStatistics
         {
             Task<Result<GetDashboardStatisticsResult>> GetDashboardStatistics(GetDashboardStatisticsQuery query, CancellationToken cancellationToken = default);
+        }
+
+        public interface IGlobalSearch
+        {
+            Task<Result<GlobalSearchResult>> GlobalSearch(GlobalSearchQuery query, CancellationToken cancellationToken = default);
         }
 
         public interface IGetLocalizationResources
