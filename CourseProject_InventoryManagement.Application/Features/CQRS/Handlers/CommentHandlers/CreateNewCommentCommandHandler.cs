@@ -61,8 +61,7 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.C
 
             await _context.Comments.AddAsync(comment, cancellationToken);
             await _context.SaveChangesAsync(cancellationToken);
-
-            // Notify connected clients
+            
             await _commentNotificationService.SendCommentAddedNotificationAsync(
                 command.InventoryId,
                 comment.Id,

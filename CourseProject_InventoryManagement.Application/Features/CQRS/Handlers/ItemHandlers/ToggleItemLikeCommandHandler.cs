@@ -43,14 +43,12 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.I
             bool isLiked;
 
             if (existingLike != null)
-            {
-                // Zaten beğenilmiş, demek ki geri çekiyoruz (Unlike)
+            {                
                 _context.ItemLikes.Remove(existingLike);
                 isLiked = false;
             }
             else
-            {
-                // Henüz beğenilmemiş, beğeniyoruz (Like)
+            {               
                 var newLike = new ItemLike
                 {
                     Id = Guid.NewGuid(),
