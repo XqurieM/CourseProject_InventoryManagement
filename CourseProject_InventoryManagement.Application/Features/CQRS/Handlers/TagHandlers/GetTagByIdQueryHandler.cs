@@ -9,13 +9,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.TagHandlers
 {
-    public class GetAllTagsQueryHandler : ICQRS.IGetAllTags
+    public class GetTagByIdQueryHandler : ICQRS.IGetTagById
     {
         private readonly IAppDbContext _context;
         private readonly IAuthenticatedUserService _authenticatedUserService;
         private readonly IReferenceDataAuthorizationService _referenceDataAuthorizationService;
 
-        public GetAllTagsQueryHandler(
+        public GetTagByIdQueryHandler(
             IAppDbContext context,
             IAuthenticatedUserService authenticatedUserService,
             IReferenceDataAuthorizationService referenceDataAuthorizationService)
@@ -25,33 +25,37 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.T
             _referenceDataAuthorizationService = referenceDataAuthorizationService;
         }
 
-        public async Task<Result<List<TagDto>>> GetAllTags(CancellationToken cancellationToken = default)
+        public async Task<Result<TagDto>> GetTagById(Guid tagId, CancellationToken cancellationToken = default)
         {
             var userResult = await _authenticatedUserService.GetRequiredUserAsync(cancellationToken);
             if (!userResult.IsSuccess)
             {
-                return ResultFailureMapper.MapFailure<AppUser, List<TagDto>>(userResult);
+                return ResultFailureMapper.MapFailure<AppUser, TagDto>(userResult);
             }
 
             var canReadTags = await _referenceDataAuthorizationService.CanReadTagsAsync(userResult.Value.Id, cancellationToken);
             if (!canReadTags)
             {
-                return Result<List<TagDto>>.Forbidden("You do not have permission to view tags.");
+                return Result<TagDto>.Forbidden("You do not have permission to view tags.");
             }
 
-            var tags = await _context.Tags
-                .Select(tag => new TagDto
+            var tag = await _context.Tags
+                .Where(x => x.Id == tagId)
+                .Select(x => new TagDto
                 {
-                    Id = tag.Id,
-                    Name = tag.Name,
-                    NormalizedName = tag.NormalizedName,
-                    InventoryCount = tag.InventoryTags.Count()
+                    Id = x.Id,
+                    Name = x.Name,
+                    NormalizedName = x.NormalizedName,
+                    InventoryCount = x.InventoryTags.Count()
                 })
-                .OrderByDescending(tag => tag.InventoryCount)
-                .ThenBy(tag => tag.Name)
-                .ToListAsync(cancellationToken);
+                .FirstOrDefaultAsync(cancellationToken);
 
-            return Result<List<TagDto>>.Success(tags);
+            if (tag is null)
+            {
+                return Result<TagDto>.NotFound("Tag not found.");
+            }
+
+            return Result<TagDto>.Success(tag);
         }
     }
 }

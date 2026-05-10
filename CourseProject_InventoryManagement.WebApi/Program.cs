@@ -2,12 +2,15 @@ using Ardalis.Result.AspNetCore;
 using CourseProject_InventoryManagement.Application.Abstractions.Authentication;
 using CourseProject_InventoryManagement.Application.Abstractions.Authorization;
 using CourseProject_InventoryManagement.Application.Abstractions.Localization;
+using CourseProject_InventoryManagement.Application.Abstractions.Notifications;
 using CourseProject_InventoryManagement.Application.Abstractions.Persistence;
+using CourseProject_InventoryManagement.Application.Abstractions.Storage;
 using CourseProject_InventoryManagement.Application.Features.CQRS;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Handlers;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.AuthHandlers;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.CategoryHandlers;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.CommentHandlers;
+using CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.FilesHandlers;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.GeneralHandlers;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.InventoryHandlers;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.ItemHandlers;
@@ -17,17 +20,18 @@ using CourseProject_InventoryManagement.Domain.Interfaces;
 using CourseProject_InventoryManagement.Domain.Services;
 using CourseProject_InventoryManagement.Infrastructure.Authentication;
 using CourseProject_InventoryManagement.Infrastructure.Authorization;
+using CourseProject_InventoryManagement.Infrastructure.Keys;
 using CourseProject_InventoryManagement.Infrastructure.Localization;
 using CourseProject_InventoryManagement.Infrastructure.Persistence.Context;
+using CourseProject_InventoryManagement.Infrastructure.Storage;
+using CourseProject_InventoryManagement.WebApi.Hubs;
 using CourseProject_InventoryManagement.WebApi.Options;
+using CourseProject_InventoryManagement.WebApi.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
-using CourseProject_InventoryManagement.Application.Abstractions.Notifications;
-using CourseProject_InventoryManagement.WebApi.Hubs;
-using CourseProject_InventoryManagement.WebApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -71,7 +75,7 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddMemoryCache();
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection(JwtSettings.SectionName));
 builder.Services.Configure<MicrosoftExternalLoginOptions>(builder.Configuration.GetSection(MicrosoftExternalLoginOptions.SectionName));
-
+builder.Services.Configure<GoogleDriveSettings>(builder.Configuration.GetSection("GoogleDriveSettings"));
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
 builder.Services.AddScoped<IAppDbContext>(provider =>
@@ -111,6 +115,12 @@ builder.Services.AddScoped<ICQRS.IToggleItemLike, ToggleItemLikeCommandHandler>(
 builder.Services.AddScoped<ICQRS.IGetInventoryFieldsByInventoryId, GetInventoryFieldsByInventoryIdQueryHandler>();
 builder.Services.AddScoped<ICQRS.IGetInventoryAccessList, GetInventoryAccessListQueryHandler>();
 builder.Services.AddScoped<ICQRS.IGetAllTags, GetAllTagsQueryHandler>();
+builder.Services.AddScoped<ICQRS.IGetTagById, GetTagByIdQueryHandler>();
+builder.Services.AddScoped<ICQRS.ISearchTags, SearchTagsQueryHandler>();
+builder.Services.AddScoped<ICQRS.IGetInventoriesByTag, GetInventoriesByTagQueryHandler>();
+builder.Services.AddScoped<ICQRS.ICreateTag, CreateTagCommandHandler>();
+builder.Services.AddScoped<ICQRS.IUpdateTag, UpdateTagCommandHandler>();
+builder.Services.AddScoped<ICQRS.IDeleteTag, DeleteTagCommandHandler>();
 builder.Services.AddScoped<ICQRS.IAddInventoryField, AddInventoryFieldCommandHandler>();
 builder.Services.AddScoped<ICQRS.IAddInventoryCustomIdRules, AddInventoryCustomIdRulesCommandHandler>();
 builder.Services.AddScoped<ICQRS.IUpdateInventoryAccess, UpdateInventoryAccessCommandHandler>();
@@ -141,7 +151,9 @@ builder.Services.AddScoped<ICQRS.IGetLocalizationResourcesAdminList, GetLocaliza
 builder.Services.AddScoped<ICQRS.IUpsertLocalizationResource, UpsertLocalizationResourceCommandHandler>();
 builder.Services.AddScoped<ICQRS.IBulkUpsertLocalizationResources, BulkUpsertLocalizationResourcesCommandHandler>();
 builder.Services.AddScoped<ICQRS.IDeleteLocalizationResource, DeleteLocalizationResourceCommandHandler>();
+builder.Services.AddScoped<ICQRS.IUploadFile, UploadFileCommandHandler>();
 builder.Services.AddScoped<ICustomIdGenerator, CustomIdGenerator>();
+builder.Services.AddScoped<IStorageService, GoogleDriveService>();
 
 var jwtSettings = builder.Configuration.GetSection(JwtSettings.SectionName).Get<JwtSettings>()
     ?? throw new InvalidOperationException("Jwt settings are missing.");
@@ -169,7 +181,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowUIPort",
         policy =>
         {
-            policy.WithOrigins("https://localhost:7214") 
+            policy.WithOrigins("https://localhost:7214", "http://localhost:5214") 
                   .AllowAnyHeader()
                   .AllowAnyMethod()
                   .AllowCredentials(); 

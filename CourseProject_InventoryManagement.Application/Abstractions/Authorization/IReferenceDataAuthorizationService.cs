@@ -5,5 +5,6 @@ namespace CourseProject_InventoryManagement.Application.Abstractions.Authorizati
         Task<bool> CanReadCategoriesAsync(Guid userId, CancellationToken cancellationToken = default);
         Task<bool> CanManageCategoriesAsync(Guid userId, CancellationToken cancellationToken = default);
         Task<bool> CanReadTagsAsync(Guid userId, CancellationToken cancellationToken = default);
+        Task<bool> CanManageTagsAsync(Guid userId, CancellationToken cancellationToken = default);
     }
 }

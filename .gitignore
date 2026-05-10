@@ -13,3 +13,5 @@
 /CourseProject_InventoryManagement.Infrastructure/obj
 /CourseProject_InventoryManagement.Contracts/bin/Debug/net8.0
 /CourseProject_InventoryManagement.Contracts/obj
+/CourseProject_InventoryManagement.Infrastructure/Keys/*.json
+/CourseProject_InventoryManagement.WebApi/wwwroot/uploads/

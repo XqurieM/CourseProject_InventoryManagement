@@ -19,6 +19,7 @@
     <PackageReference Include="Ardalis.Result" Version="10.1.0" />
     <PackageReference Include="Ardalis.Result.AspNetCore" Version="10.1.0" />
     <PackageReference Include="Google.Apis.Auth" Version="1.74.0" />
+    <PackageReference Include="Google.Apis.Drive.v3" Version="1.74.0.4135" />
     <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.9" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.26" />
   </ItemGroup>

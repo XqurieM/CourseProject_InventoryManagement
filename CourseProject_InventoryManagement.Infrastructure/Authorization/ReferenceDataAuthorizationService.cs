@@ -22,6 +22,9 @@ namespace CourseProject_InventoryManagement.Infrastructure.Authorization
         public Task<bool> CanReadTagsAsync(Guid userId, CancellationToken cancellationToken = default) =>
             IsActiveUserAsync(userId, cancellationToken);
 
+        public Task<bool> CanManageTagsAsync(Guid userId, CancellationToken cancellationToken = default) =>
+            IsActiveAdminAsync(userId, cancellationToken);
+
         private Task<bool> IsActiveUserAsync(Guid userId, CancellationToken cancellationToken) =>
             _context.Users
                 .AsNoTracking()

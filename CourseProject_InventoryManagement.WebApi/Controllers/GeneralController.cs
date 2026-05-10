@@ -1,5 +1,6 @@
 using Ardalis.Result.AspNetCore;
 using CourseProject_InventoryManagement.Application.DTOs;
+using CourseProject_InventoryManagement.Application.Features.CQRS.Commands.FilesCommands;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Commands.GeneralCommands;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Queries.GeneralQueries;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Results.GeneralResults;
@@ -9,6 +10,11 @@ using static CourseProject_InventoryManagement.Application.Features.CQRS.ICQRS;
 
 namespace CourseProject_InventoryManagement.WebApi.Controllers
 {
+    public sealed class UploadInventoryImageRequest
+    {
+        public IFormFile? File { get; set; }
+    }
+
     [Route("[controller]/[action]")]
     [ApiController]
     public class GeneralController : ControllerBase
@@ -19,16 +25,9 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
         private readonly IUpsertLocalizationResource _upsertLocalizationResource;
         private readonly IBulkUpsertLocalizationResources _bulkUpsertLocalizationResources;
         private readonly IDeleteLocalizationResource _deleteLocalizationResource;
-        private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly IUploadFile _uploadFile;
 
-        public GeneralController(
-            IGetDashboardStatistics getDashboardStatistics,
-            IGetLocalizationResources getLocalizationResources,
-            IGetLocalizationResourcesAdminList getLocalizationResourcesAdminList,
-            IUpsertLocalizationResource upsertLocalizationResource,
-            IBulkUpsertLocalizationResources bulkUpsertLocalizationResources,
-            IDeleteLocalizationResource deleteLocalizationResource,
-            IWebHostEnvironment webHostEnvironment)
+        public GeneralController(IGetDashboardStatistics getDashboardStatistics, IGetLocalizationResources getLocalizationResources, IGetLocalizationResourcesAdminList getLocalizationResourcesAdminList, IUpsertLocalizationResource upsertLocalizationResource, IBulkUpsertLocalizationResources bulkUpsertLocalizationResources, IDeleteLocalizationResource deleteLocalizationResource, IUploadFile uploadFile)
         {
             _getDashboardStatistics = getDashboardStatistics;
             _getLocalizationResources = getLocalizationResources;
@@ -36,7 +35,7 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
             _upsertLocalizationResource = upsertLocalizationResource;
             _bulkUpsertLocalizationResources = bulkUpsertLocalizationResources;
             _deleteLocalizationResource = deleteLocalizationResource;
-            _webHostEnvironment = webHostEnvironment;
+            _uploadFile = uploadFile;
         }
 
         [Authorize]
@@ -90,40 +89,10 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
         [Authorize]
         [HttpPost]
         [RequestSizeLimit(10 * 1024 * 1024)]
-        public async Task<ActionResult<UploadedFileResultDto>> UploadInventoryImage(IFormFile file, CancellationToken cancellationToken)
+        public async Task<ActionResult<UploadedFileResultDto>> UploadInventoryImage([FromForm] UploadInventoryImageRequest request, CancellationToken cancellationToken)
         {
-            if (file is null || file.Length == 0)
-            {
-                return BadRequest("An image file is required.");
-            }
-
-            if (!file.ContentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase))
-            {
-                return BadRequest("Only image uploads are allowed.");
-            }
-
-            var webRoot = _webHostEnvironment.WebRootPath ?? Path.Combine(_webHostEnvironment.ContentRootPath, "wwwroot");
-            var uploadsRoot = Path.Combine(webRoot, "uploads", "inventories");
-            Directory.CreateDirectory(uploadsRoot);
-
-            var extension = Path.GetExtension(file.FileName);
-            var safeFileName = $"{Guid.NewGuid():N}{extension}";
-            var fullPath = Path.Combine(uploadsRoot, safeFileName);
-
-            await using (var stream = new FileStream(fullPath, FileMode.Create))
-            {
-                await file.CopyToAsync(stream, cancellationToken);
-            }
-
-            var relativePath = $"/uploads/inventories/{safeFileName}";
-            var absoluteUrl = $"{Request.Scheme}://{Request.Host}{relativePath}";
-
-            return Ok(new UploadedFileResultDto
-            {
-                FileName = safeFileName,
-                RelativePath = relativePath,
-                Url = absoluteUrl
-            });
+            var result = await _uploadFile.UploadFile(new UploadFileCommand(request.File!), cancellationToken);
+            return this.ToActionResult(result);
         }
     }
 }

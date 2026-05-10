@@ -3,17 +3,21 @@ using CourseProject_InventoryManagement.Application.DTOs;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Commands.AuthCommands;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Commands.CategoryCommands;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Commands.CommentCommands;
+using CourseProject_InventoryManagement.Application.Features.CQRS.Commands.FilesCommands;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Commands.GeneralCommands;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Commands.InventoryCommands;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Commands.ItemCommands;
+using CourseProject_InventoryManagement.Application.Features.CQRS.Commands.TagCommands;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Commands.UserCommands;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Queries.AuthQueries;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Queries.GeneralQueries;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Queries.InventoryQueries;
+using CourseProject_InventoryManagement.Application.Features.CQRS.Queries.TagQueries;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Queries.UserQueries;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Results.GeneralResults;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Results.InventoryResults;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Results.ItemResults;
+using Microsoft.AspNetCore.Http;
 
 namespace CourseProject_InventoryManagement.Application.Features.CQRS
 {
@@ -235,12 +239,47 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS
             Task<Result<Guid>> DeleteLocalizationResource(DeleteLocalizationResourceCommand command, CancellationToken cancellationToken = default);
         }
 
+        public interface IUploadFile
+        {
+            Task<Result<UploadedFileResultDto>> UploadFile(UploadFileCommand command, CancellationToken cancellationToken = default);
+        }
+
         #endregion
 
         #region Tags
         public interface IGetAllTags
         {
             Task<Result<List<TagDto>>> GetAllTags(CancellationToken cancellationToken = default);
+        }
+
+        public interface IGetTagById
+        {
+            Task<Result<TagDto>> GetTagById(Guid tagId, CancellationToken cancellationToken = default);
+        }
+
+        public interface ISearchTags
+        {
+            Task<Result<List<TagDto>>> SearchTags(SearchTagsQuery query, CancellationToken cancellationToken = default);
+        }
+
+        public interface IGetInventoriesByTag
+        {
+            Task<Result<List<GetInventoriesWithJoinInfosResult>>> GetInventoriesByTag(GetInventoriesByTagQuery query, CancellationToken cancellationToken = default);
+        }
+
+        public interface ICreateTag
+        {
+            Task<Result<Guid>> CreateTag(CreateTagCommand command, CancellationToken cancellationToken = default);
+        }
+
+        public interface IUpdateTag
+        {
+            Task<Result<Guid>> UpdateTag(UpdateTagCommand command, CancellationToken cancellationToken = default);
+        }
+
+        public interface IDeleteTag
+        {
+            Task<Result<Guid>> DeleteTag(DeleteTagCommand command, CancellationToken cancellationToken = default);
         }
         #endregion
 
