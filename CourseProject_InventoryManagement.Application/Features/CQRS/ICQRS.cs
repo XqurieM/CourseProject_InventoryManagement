@@ -104,18 +104,36 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS
         {
             Task<Result<List<GetInventoryFieldsByInventoryIdResult>>> GetInventoryFieldsByInventoryId(Guid inventoryId, CancellationToken cancellationToken = default);
         }
+        public interface IGetInventoryCustomIdRulesByInventoryId
+        {
+            Task<Result<List<GetInventoryCustomIdRulesByInventoryIdResult>>> GetInventoryCustomIdRulesByInventoryId(Guid inventoryId, CancellationToken cancellationToken = default);
+        }
         public interface IGetInventoryAccessList
         {
             Task<Result<List<InventoryAccessListDto>>> GetInventoryAccessList(Guid inventoryId, CancellationToken cancellationToken = default);
+        }
+        public interface ISearchUsersForAccess
+        {
+            Task<Result<List<InventoryAccessUserLookupDto>>> SearchUsersForAccess(SearchUsersForAccessQuery query, CancellationToken cancellationToken = default);
         }
         public interface IAddInventoryField
         {
             Task<Result<Guid>> AddInventoryField(AddInventoryFieldCommand command, CancellationToken cancellationToken = default);
         }
 
+        public interface IUpdateInventoryFields
+        {
+            Task<Result<Guid>> UpdateInventoryFields(UpdateInventoryFieldsCommand command, CancellationToken cancellationToken = default);
+        }
+
         public interface IAddInventoryCustomIdRules
         {
             Task<Result<Guid>> AddInventoryCustomIdRules(AddInventoryCustomIdRulesCommand command, CancellationToken cancellationToken = default);
+        }
+
+        public interface IUpdateInventoryCustomIdRules
+        {
+            Task<Result<Guid>> UpdateInventoryCustomIdRules(UpdateInventoryCustomIdRulesCommand command, CancellationToken cancellationToken = default);
         }
 
         public interface IUpdateInventoryAccess

@@ -72,7 +72,7 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.I
                 _context.InventoryAccesses.RemoveRange(existingAccesses);
             }
 
-            if (!command.IsPublic && users.Count > 0)
+            if (users.Count > 0)
             {
                 var newAccesses = users.Select(userId => new InventoryAccess
                 {

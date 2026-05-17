@@ -39,17 +39,24 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.I
                 return Result<List<InventoryAccessListDto>>.Forbidden("You do not have permission to view access settings for this inventory.");
             }
 
-            var accessList = await _context.InventoryAccesses
-                .Where(x => x.InventoryId == inventoryId)
-                .Select(x => new InventoryAccessListDto
+            var accessList = await (
+                from access in _context.InventoryAccesses
+                join user in _context.Users on access.UserId equals user.Id
+                where access.InventoryId == inventoryId
+                orderby access.CreatedAtUtc
+                select new InventoryAccessListDto
                 {
-                    Id = x.Id,
-                    InventoryId = x.InventoryId,
-                    UserId = x.UserId,
-                    CreatedAtUtc = x.CreatedAtUtc,
-                    CreatedByUserId = x.CreatedByUserId,
-                    UpdatedAtUtc = x.UpdatedAtUtc ?? x.CreatedAtUtc,
-                    UpdatedByUserId = x.UpdatedByUserId ?? x.CreatedByUserId
+                    Id = access.Id,
+                    InventoryId = access.InventoryId,
+                    UserId = access.UserId,
+                    UserName = user.UserName,
+                    Email = user.Email,
+                    IsAdmin = user.IsAdmin,
+                    IsBlocked = user.IsBlocked,
+                    CreatedAtUtc = access.CreatedAtUtc,
+                    CreatedByUserId = access.CreatedByUserId,
+                    UpdatedAtUtc = access.UpdatedAtUtc ?? access.CreatedAtUtc,
+                    UpdatedByUserId = access.UpdatedByUserId ?? access.CreatedByUserId
                 })
                 .ToListAsync(cancellationToken);
 

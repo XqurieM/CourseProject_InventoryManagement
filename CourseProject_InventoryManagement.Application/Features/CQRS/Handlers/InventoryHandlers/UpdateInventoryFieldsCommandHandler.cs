@@ -9,13 +9,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.InventoryHandlers
 {
-    public class AddInventoryFieldCommandHandler : ICQRS.IAddInventoryField
+    public class UpdateInventoryFieldsCommandHandler : ICQRS.IUpdateInventoryFields
     {
         private readonly IAppDbContext _context;
         private readonly IAuthenticatedUserService _authenticatedUserService;
         private readonly IInventoryAuthorizationService _inventoryAuthorizationService;
 
-        public AddInventoryFieldCommandHandler(
+        public UpdateInventoryFieldsCommandHandler(
             IAppDbContext context,
             IAuthenticatedUserService authenticatedUserService,
             IInventoryAuthorizationService inventoryAuthorizationService)
@@ -25,7 +25,7 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.I
             _inventoryAuthorizationService = inventoryAuthorizationService;
         }
 
-        public async Task<Result<Guid>> AddInventoryField(AddInventoryFieldCommand command, CancellationToken cancellationToken = default)
+        public async Task<Result<Guid>> UpdateInventoryFields(UpdateInventoryFieldsCommand command, CancellationToken cancellationToken = default)
         {
             var userResult = await _authenticatedUserService.GetRequiredUserAsync(cancellationToken);
             if (!userResult.IsSuccess)
@@ -47,14 +47,8 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.I
                 return Result<Guid>.NotFound("Inventory not found.");
             }
 
-            var nextDisplayOrder = await _context.InventoryFields
-                .Where(x => x.InventoryId == command.InventoryId && !x.IsDeleted)
-                .Select(x => (int?)x.DisplayOrder)
-                .MaxAsync(cancellationToken) ?? 0;
-
             var validFields = command.Fields
-                .Where(x => !string.IsNullOrWhiteSpace(x.Name))
-                .OrderBy(x => x.DisplayOrder)
+                .Where(x => x.Id != Guid.Empty && !string.IsNullOrWhiteSpace(x.Name))
                 .ToList();
 
             if (validFields.Count == 0)
@@ -62,24 +56,33 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.I
                 return Result<Guid>.Invalid(new ValidationError
                 {
                     Identifier = nameof(command.Fields),
-                    ErrorMessage = "Add at least one valid field."
+                    ErrorMessage = "Update at least one valid field."
                 });
             }
 
-            var newFields = validFields.Select((f, index) => new InventoryField
-            {
-                Id = Guid.NewGuid(),
-                InventoryId = command.InventoryId,
-                Name = f.Name.Trim(),
-                Description = string.IsNullOrWhiteSpace(f.Description) ? null : f.Description.Trim(),
-                FieldType = f.FieldType,
-                DisplayOrder = f.DisplayOrder > 0 ? f.DisplayOrder : nextDisplayOrder + index + 1,
-                IsRequired = f.IsRequired,
-                ShowInTable = f.ShowInTable,
-                CreatedByUserId = userResult.Value.Id
-            }).ToList();
+            var requestedIds = validFields.Select(x => x.Id).Distinct().ToList();
+            var existingFields = await _context.InventoryFields
+                .Where(x => x.InventoryId == command.InventoryId && !x.IsDeleted && requestedIds.Contains(x.Id))
+                .ToListAsync(cancellationToken);
 
-            await _context.InventoryFields.AddRangeAsync(newFields, cancellationToken);
+            if (existingFields.Count != requestedIds.Count)
+            {
+                return Result<Guid>.NotFound("One or more inventory fields could not be found.");
+            }
+
+            foreach (var field in existingFields)
+            {
+                var updated = validFields.First(x => x.Id == field.Id);
+                field.Name = updated.Name.Trim();
+                field.Description = string.IsNullOrWhiteSpace(updated.Description) ? null : updated.Description.Trim();
+                field.FieldType = updated.FieldType;
+                field.DisplayOrder = updated.DisplayOrder > 0 ? updated.DisplayOrder : field.DisplayOrder;
+                field.IsRequired = updated.IsRequired;
+                field.ShowInTable = updated.ShowInTable;
+                field.UpdatedAtUtc = DateTime.UtcNow;
+                field.UpdatedByUserId = userResult.Value.Id;
+            }
+
             await _context.SaveChangesAsync(cancellationToken);
 
             return Result<Guid>.Success(command.InventoryId);

@@ -9,23 +9,23 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.InventoryHandlers
 {
-    public class AddInventoryCustomIdRulesCommandHandler : ICQRS.IAddInventoryCustomIdRules
+    public class UpdateInventoryCustomIdRulesCommandHandler : ICQRS.IUpdateInventoryCustomIdRules
     {
         private readonly IAppDbContext _context;
         private readonly IAuthenticatedUserService _authenticatedUserService;
         private readonly IInventoryAuthorizationService _inventoryAuthorizationService;
 
-        public AddInventoryCustomIdRulesCommandHandler(
-            IAppDbContext appDbContext,
+        public UpdateInventoryCustomIdRulesCommandHandler(
+            IAppDbContext context,
             IAuthenticatedUserService authenticatedUserService,
             IInventoryAuthorizationService inventoryAuthorizationService)
         {
-            _context = appDbContext;
+            _context = context;
             _authenticatedUserService = authenticatedUserService;
             _inventoryAuthorizationService = inventoryAuthorizationService;
         }
 
-        public async Task<Result<Guid>> AddInventoryCustomIdRules(AddInventoryCustomIdRulesCommand command, CancellationToken cancellationToken = default)
+        public async Task<Result<Guid>> UpdateInventoryCustomIdRules(UpdateInventoryCustomIdRulesCommand command, CancellationToken cancellationToken = default)
         {
             var userResult = await _authenticatedUserService.GetRequiredUserAsync(cancellationToken);
             if (!userResult.IsSuccess)
@@ -45,18 +45,28 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.I
                 return Result<Guid>.NotFound($"Inventory with ID {command.InventoryId} not found.");
             }
 
-            var newRules = command.Rules.Select(r => new InventoryCustomIdRule
-            {
-                Id = Guid.NewGuid(),
-                InventoryId = command.InventoryId,
-                PartOrder = r.PartOrder,
-                PartType = r.PartType,
-                StaticTextValue = string.IsNullOrWhiteSpace(r.StaticTextValue) ? null : r.StaticTextValue.Trim(),
-                Format = string.IsNullOrWhiteSpace(r.Format) ? null : r.Format.Trim(),
-                CreatedByUserId = userResult.Value.Id
-            }).ToList();
+            var ruleIds = command.Rules.Select(x => x.Id).Distinct().ToList();
+            var existingRules = await _context.InventoryCustomIdRules
+                .Where(x => x.InventoryId == command.InventoryId && ruleIds.Contains(x.Id))
+                .ToListAsync(cancellationToken);
 
-            await _context.InventoryCustomIdRules.AddRangeAsync(newRules, cancellationToken);
+            if (existingRules.Count != ruleIds.Count)
+            {
+                return Result<Guid>.NotFound("One or more custom ID rules could not be found.");
+            }
+
+            var utcNow = DateTime.UtcNow;
+            foreach (var existingRule in existingRules)
+            {
+                var input = command.Rules.First(x => x.Id == existingRule.Id);
+                existingRule.PartOrder = input.PartOrder;
+                existingRule.PartType = input.PartType;
+                existingRule.Format = string.IsNullOrWhiteSpace(input.Format) ? null : input.Format.Trim();
+                existingRule.StaticTextValue = string.IsNullOrWhiteSpace(input.StaticTextValue) ? null : input.StaticTextValue.Trim();
+                existingRule.UpdatedAtUtc = utcNow;
+                existingRule.UpdatedByUserId = userResult.Value.Id;
+            }
+
             await _context.SaveChangesAsync(cancellationToken);
 
             return Result<Guid>.Success(command.InventoryId);

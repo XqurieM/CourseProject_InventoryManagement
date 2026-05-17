@@ -17,31 +17,39 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
         private readonly IGetInventoryById _getInventoryById;
         private readonly IAddInventoryField _addInventoryField;
         private readonly IAddInventoryCustomIdRules _addInventoryCustomIdRules;
+        private readonly IGetInventoryCustomIdRulesByInventoryId _getInventoryCustomIdRulesByInventoryId;
+        private readonly IUpdateInventoryCustomIdRules _updateInventoryCustomIdRules;
         private readonly IUpdateInventoryAccess _updateInventoryAccess;
         private readonly IGetPopular5Inventories _getPopular5Inventories;
         private readonly IGetMyEditableInventories _getMyEditableInventories;
         private readonly IGetOwnInventories _getOwnInventories;
         private readonly IGetLast10Inventories _getLast10Inventories;
         private readonly IGetInventoryFieldsByInventoryId _getInventoryFieldsByInventoryId;
+        private readonly IUpdateInventoryFields _updateInventoryFields;
         private readonly IUpdateInventory _updateInventory;
         private readonly IDeleteInventory _deleteInventory;
         private readonly IGetInventoryAccessList _getInventoryAccessList;
+        private readonly ISearchUsersForAccess _searchUsersForAccess;
 
-        public InventoryController(ICreateInventory createInventory, IGetInventoryById getInventoryById, IAddInventoryField addInventoryField, IAddInventoryCustomIdRules addInventoryCustomIdRules, IUpdateInventoryAccess updateInventoryAccess, IGetPopular5Inventories getPopular5Inventories, IGetMyEditableInventories getMyEditableInventories, IGetOwnInventories getOwnInventories, IGetLast10Inventories getLast10Inventories, IGetInventoryFieldsByInventoryId getInventoryFieldsByInventoryId, IUpdateInventory updateInventory, IDeleteInventory deleteInventory, IGetInventoryAccessList getInventoryAccessList)
+        public InventoryController(ICreateInventory createInventory, IGetInventoryById getInventoryById, IAddInventoryField addInventoryField, IAddInventoryCustomIdRules addInventoryCustomIdRules, IGetInventoryCustomIdRulesByInventoryId getInventoryCustomIdRulesByInventoryId, IUpdateInventoryCustomIdRules updateInventoryCustomIdRules, IUpdateInventoryAccess updateInventoryAccess, IGetPopular5Inventories getPopular5Inventories, IGetMyEditableInventories getMyEditableInventories, IGetOwnInventories getOwnInventories, IGetLast10Inventories getLast10Inventories, IGetInventoryFieldsByInventoryId getInventoryFieldsByInventoryId, IUpdateInventoryFields updateInventoryFields, IUpdateInventory updateInventory, IDeleteInventory deleteInventory, IGetInventoryAccessList getInventoryAccessList, ISearchUsersForAccess searchUsersForAccess)
         {
             _createInventory = createInventory;
             _getInventoryById = getInventoryById;
             _addInventoryField = addInventoryField;
             _addInventoryCustomIdRules = addInventoryCustomIdRules;
+            _getInventoryCustomIdRulesByInventoryId = getInventoryCustomIdRulesByInventoryId;
+            _updateInventoryCustomIdRules = updateInventoryCustomIdRules;
             _updateInventoryAccess = updateInventoryAccess;
             _getPopular5Inventories = getPopular5Inventories;
             _getMyEditableInventories = getMyEditableInventories;
             _getOwnInventories = getOwnInventories;
             _getLast10Inventories = getLast10Inventories;
             _getInventoryFieldsByInventoryId = getInventoryFieldsByInventoryId;
+            _updateInventoryFields = updateInventoryFields;
             _updateInventory = updateInventory;
             _deleteInventory = deleteInventory;
             _getInventoryAccessList = getInventoryAccessList;
+            _searchUsersForAccess = searchUsersForAccess;
         }
 
         [Authorize]
@@ -103,9 +111,25 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
 
         [Authorize]
         [HttpGet]
-        public async Task<ActionResult<List<InventoryAccessListDto>>> GetInventoryAccessList(GetInventoryAccessListQuery query, CancellationToken cancellationToken)
+        public async Task<ActionResult<List<GetInventoryCustomIdRulesByInventoryIdResult>>> GetInventoryCustomIdRulesByInventoryId(Guid inventoryId, CancellationToken cancellationToken)
         {
-            var result = await _getInventoryAccessList.GetInventoryAccessList(query.InventoryId, cancellationToken);
+            var result = await _getInventoryCustomIdRulesByInventoryId.GetInventoryCustomIdRulesByInventoryId(inventoryId, cancellationToken);
+            return this.ToActionResult(result);
+        }
+
+        [Authorize]
+        [HttpGet]
+        public async Task<ActionResult<List<InventoryAccessListDto>>> GetInventoryAccessList([FromQuery] Guid inventoryId, CancellationToken cancellationToken)
+        {
+            var result = await _getInventoryAccessList.GetInventoryAccessList(inventoryId, cancellationToken);
+            return this.ToActionResult(result);
+        }
+
+        [Authorize]
+        [HttpGet]
+        public async Task<ActionResult<List<InventoryAccessUserLookupDto>>> SearchUsersForAccess([FromQuery] SearchUsersForAccessQuery query, CancellationToken cancellationToken)
+        {
+            var result = await _searchUsersForAccess.SearchUsersForAccess(query, cancellationToken);
             return this.ToActionResult(result);
         }
             
@@ -119,9 +143,25 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
 
         [Authorize]
         [HttpPost]
+        public async Task<ActionResult<Guid>> UpdateInventoryFields(UpdateInventoryFieldsCommand command, CancellationToken cancellationToken)
+        {
+            var result = await _updateInventoryFields.UpdateInventoryFields(command, cancellationToken);
+            return this.ToActionResult(result);
+        }
+
+        [Authorize]
+        [HttpPost]
         public async Task<ActionResult<Guid>> AddInventoryCustomIdRules(AddInventoryCustomIdRulesCommand command, CancellationToken cancellationToken)
         {
             var result = await _addInventoryCustomIdRules.AddInventoryCustomIdRules(command, cancellationToken);
+            return this.ToActionResult(result);
+        }
+
+        [Authorize]
+        [HttpPost]
+        public async Task<ActionResult<Guid>> UpdateInventoryCustomIdRules(UpdateInventoryCustomIdRulesCommand command, CancellationToken cancellationToken)
+        {
+            var result = await _updateInventoryCustomIdRules.UpdateInventoryCustomIdRules(command, cancellationToken);
             return this.ToActionResult(result);
         }
 
