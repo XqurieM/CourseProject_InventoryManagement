@@ -76,6 +76,7 @@ builder.Services.AddMemoryCache();
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection(JwtSettings.SectionName));
 builder.Services.Configure<MicrosoftExternalLoginOptions>(builder.Configuration.GetSection(MicrosoftExternalLoginOptions.SectionName));
 builder.Services.Configure<GoogleDriveSettings>(builder.Configuration.GetSection("GoogleDriveSettings"));
+builder.Services.Configure<TelegramStorageSettings>(builder.Configuration.GetSection("TelegramStorageSettings"));
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
 builder.Services.AddScoped<IAppDbContext>(provider =>
@@ -157,7 +158,13 @@ builder.Services.AddScoped<ICQRS.IBulkUpsertLocalizationResources, BulkUpsertLoc
 builder.Services.AddScoped<ICQRS.IDeleteLocalizationResource, DeleteLocalizationResourceCommandHandler>();
 builder.Services.AddScoped<ICQRS.IUploadFile, UploadFileCommandHandler>();
 builder.Services.AddScoped<ICustomIdGenerator, CustomIdGenerator>();
-builder.Services.AddScoped<IStorageService, GoogleDriveService>();
+
+builder.Services.AddHttpClient<TelegramStorageService>();
+builder.Services.AddScoped<ITelegramStorageProxy, TelegramStorageService>();
+
+
+// builder.Services.AddScoped<IStorageService, GoogleDriveService>();
+builder.Services.AddScoped<IStorageService, TelegramStorageService>();
 
 var jwtSettings = builder.Configuration.GetSection(JwtSettings.SectionName).Get<JwtSettings>()
     ?? throw new InvalidOperationException("Jwt settings are missing.");

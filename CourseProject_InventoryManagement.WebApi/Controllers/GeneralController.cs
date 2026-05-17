@@ -1,4 +1,5 @@
 using Ardalis.Result.AspNetCore;
+using CourseProject_InventoryManagement.Application.Abstractions.Storage;
 using CourseProject_InventoryManagement.Application.DTOs;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Commands.FilesCommands;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Commands.GeneralCommands;
@@ -26,8 +27,9 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
         private readonly IBulkUpsertLocalizationResources _bulkUpsertLocalizationResources;
         private readonly IDeleteLocalizationResource _deleteLocalizationResource;
         private readonly IUploadFile _uploadFile;
+        private readonly ITelegramStorageProxy _telegramProxy;
 
-        public GeneralController(IGetDashboardStatistics getDashboardStatistics, IGetLocalizationResources getLocalizationResources, IGetLocalizationResourcesAdminList getLocalizationResourcesAdminList, IUpsertLocalizationResource upsertLocalizationResource, IBulkUpsertLocalizationResources bulkUpsertLocalizationResources, IDeleteLocalizationResource deleteLocalizationResource, IUploadFile uploadFile)
+        public GeneralController(IGetDashboardStatistics getDashboardStatistics, IGetLocalizationResources getLocalizationResources, IGetLocalizationResourcesAdminList getLocalizationResourcesAdminList, IUpsertLocalizationResource upsertLocalizationResource, IBulkUpsertLocalizationResources bulkUpsertLocalizationResources, IDeleteLocalizationResource deleteLocalizationResource, IUploadFile uploadFile, ITelegramStorageProxy telegramProxy)
         {
             _getDashboardStatistics = getDashboardStatistics;
             _getLocalizationResources = getLocalizationResources;
@@ -36,6 +38,7 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
             _bulkUpsertLocalizationResources = bulkUpsertLocalizationResources;
             _deleteLocalizationResource = deleteLocalizationResource;
             _uploadFile = uploadFile;
+            _telegramProxy = telegramProxy;
         }
 
         [Authorize]
@@ -93,6 +96,18 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
         {
             var result = await _uploadFile.UploadFile(new UploadFileCommand(request.File!), cancellationToken);
             return this.ToActionResult(result);
+        }
+
+        [AllowAnonymous]
+        [HttpGet]
+        public async Task<IActionResult> ProxyTelegramImage([FromQuery] string fileId, CancellationToken cancellationToken)
+        {
+            var result = await _telegramProxy.GetFileDirectUrlAsync(fileId, cancellationToken);
+            if (result.IsSuccess)
+            {
+                return Redirect(result.Value);
+            }
+            return NotFound("Image could not be retrieved from Telegram.");
         }
     }
 }
