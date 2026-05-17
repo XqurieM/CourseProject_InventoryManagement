@@ -13,11 +13,13 @@ namespace CourseProject_InventoryManagement.Infrastructure.Storage
     {
         private readonly TelegramStorageSettings _settings;
         private readonly HttpClient _httpClient;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public TelegramStorageService(IOptions<TelegramStorageSettings> settings, HttpClient httpClient)
+        public TelegramStorageService(IOptions<TelegramStorageSettings> settings, HttpClient httpClient, IHttpContextAccessor httpContextAccessor)
         {
             _settings = settings.Value;
             _httpClient = httpClient;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<UploadedFileResultDto> UploadFileAsync(IFormFile file, CancellationToken cancellationToken = default)
@@ -58,7 +60,12 @@ namespace CourseProject_InventoryManagement.Infrastructure.Storage
             if (string.IsNullOrEmpty(fileId))
                 throw new Exception("Failed to retrieve file_id from Telegram");
 
-            var proxyUrl = $"/General/ProxyTelegramImage?fileId={fileId}";
+            var request = _httpContextAccessor.HttpContext?.Request;
+            var baseUrl = !string.IsNullOrWhiteSpace(_settings.ApiBaseUrl) 
+                ? _settings.ApiBaseUrl 
+                : (request != null ? $"{request.Scheme}://{request.Host}" : "");
+            
+            var proxyUrl = $"{baseUrl.TrimEnd('/')}/General/ProxyTelegramImage?fileId={fileId}";
 
             return new UploadedFileResultDto
             {
