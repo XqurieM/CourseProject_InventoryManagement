@@ -27,18 +27,22 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
         private readonly ILoginUser _loginUser;
         private readonly IRefreshAccessToken _refreshAccessToken;
         private readonly IRevokeRefreshToken _revokeRefreshToken;
+        private readonly IRevokeAllRefreshTokens _revokeAllRefreshTokens;
+        private readonly IGetActiveSessions _getActiveSessions;
         private readonly IGetCurrentUser _getCurrentUser;
         private readonly IUpdateUserLanguage _updateUserLanguage;
         private readonly IUpdateUserTheme _updateUserTheme;
         private readonly IPasswordHasher _passwordHasher;
         private readonly MicrosoftExternalLoginOptions _microsoftExternalLoginOptions;
 
-        public AuthController(IRegisterUser registerUser, ILoginUser loginUser, IRefreshAccessToken refreshAccessToken, IRevokeRefreshToken revokeRefreshToken, IGetCurrentUser getCurrentUser, IUpdateUserLanguage updateUserLanguage, IUpdateUserTheme updateUserTheme, IPasswordHasher passwordHasher, IOptions<MicrosoftExternalLoginOptions> microsoftExternalLoginOptions)
+        public AuthController(IRegisterUser registerUser, ILoginUser loginUser, IRefreshAccessToken refreshAccessToken, IRevokeRefreshToken revokeRefreshToken, IRevokeAllRefreshTokens revokeAllRefreshTokens, IGetActiveSessions getActiveSessions, IGetCurrentUser getCurrentUser, IUpdateUserLanguage updateUserLanguage, IUpdateUserTheme updateUserTheme, IPasswordHasher passwordHasher, IOptions<MicrosoftExternalLoginOptions> microsoftExternalLoginOptions)
         {
             _registerUser = registerUser;
             _loginUser = loginUser;
             _refreshAccessToken = refreshAccessToken;
             _revokeRefreshToken = revokeRefreshToken;
+            _revokeAllRefreshTokens = revokeAllRefreshTokens;
+            _getActiveSessions = getActiveSessions;
             _getCurrentUser = getCurrentUser;
             _updateUserLanguage = updateUserLanguage;
             _updateUserTheme = updateUserTheme;
@@ -168,6 +172,22 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
         public async Task<ActionResult> RevokeRefreshToken(RevokeRefreshTokenCommand command, CancellationToken cancellationToken)
         {
             var result = await _revokeRefreshToken.RevokeRefreshToken(command, cancellationToken);
+            return this.ToActionResult(result);
+        }
+
+        [Authorize]
+        [HttpGet]
+        public async Task<ActionResult<List<ActiveSessionDto>>> GetActiveSessions(CancellationToken cancellationToken)
+        {
+            var result = await _getActiveSessions.GetActiveSessions(new GetActiveSessionsQuery(), cancellationToken);
+            return this.ToActionResult(result);
+        }
+
+        [Authorize]
+        [HttpPost]
+        public async Task<ActionResult<int>> RevokeAllRefreshTokens(RevokeAllRefreshTokensCommand command, CancellationToken cancellationToken)
+        {
+            var result = await _revokeAllRefreshTokens.RevokeAllRefreshTokens(command, cancellationToken);
             return this.ToActionResult(result);
         }
 

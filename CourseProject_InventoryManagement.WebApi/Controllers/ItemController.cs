@@ -21,8 +21,9 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
         private readonly IDeleteItem _deleteItem;
         private readonly IGetItemById _getItemById;
         private readonly IToggleItemLike _toggleItemLike;
+        private readonly IUpdateItemFieldValues _updateItemFieldValues;
 
-        public ItemController(IAddItem addItem, IAddItemFieldValues addItemFieldValues, IGetItemsByInventoryId getItemsByInventoryId, IGetItemFieldValuesByItemId getItemFieldValuesByItemId, IGetItemFieldValuesByInventoryId getItemFieldValuesByInventoryId, IUpdateItem updateItem, IDeleteItem deleteItem, IGetItemById getItemById, IToggleItemLike toggleItemLike)
+        public ItemController(IAddItem addItem, IAddItemFieldValues addItemFieldValues, IGetItemsByInventoryId getItemsByInventoryId, IGetItemFieldValuesByItemId getItemFieldValuesByItemId, IGetItemFieldValuesByInventoryId getItemFieldValuesByInventoryId, IUpdateItem updateItem, IDeleteItem deleteItem, IGetItemById getItemById, IToggleItemLike toggleItemLike, IUpdateItemFieldValues updateItemFieldValues)
         {
             _addItem = addItem;
             _addItemFieldValues = addItemFieldValues;
@@ -33,6 +34,7 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
             _deleteItem = deleteItem;
             _getItemById = getItemById;
             _toggleItemLike = toggleItemLike;
+            _updateItemFieldValues = updateItemFieldValues;
         }
 
         [Authorize]
@@ -48,6 +50,14 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
         public async Task<ActionResult<Guid>> AddItemFieldValues(AddItemFieldValuesCommand command, CancellationToken cancellationToken)
         {
             var result = await _addItemFieldValues.AddItemFieldValues(command, cancellationToken);
+            return this.ToActionResult(result);
+        }
+
+        [Authorize]
+        [HttpPost]
+        public async Task<ActionResult<Guid>> UpdateItemFieldValues(UpdateItemFieldValuesCommand command, CancellationToken cancellationToken)
+        {
+            var result = await _updateItemFieldValues.UpdateItemFieldValues(command, cancellationToken);
             return this.ToActionResult(result);
         }
 

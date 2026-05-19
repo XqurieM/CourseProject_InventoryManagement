@@ -17,11 +17,13 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
         private readonly ICQRS.ICreateNewComment _createNewComment;
         private readonly ICQRS.IGetInventoryComments _getInventoryComments;
         private readonly ICQRS.IDeleteComment _deleteComment;
-        public CommentController(ICreateNewComment createNewComment, IGetInventoryComments getInventoryComments, IDeleteComment deleteComment)
+        private readonly ICQRS.IUpdateComment _updateComment;
+        public CommentController(ICreateNewComment createNewComment, IGetInventoryComments getInventoryComments, IDeleteComment deleteComment, IUpdateComment updateComment)
         {
             _createNewComment = createNewComment;
             _getInventoryComments = getInventoryComments;
             _deleteComment = deleteComment;
+            _updateComment = updateComment;
         }
 
         [Authorize]
@@ -37,6 +39,14 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
         public async Task<ActionResult<List<CommentDto>>> GetInventoryComments(Guid inventoryId, CancellationToken cancellationToken)
         {
             var result = await _getInventoryComments.GetInventoryComments(inventoryId, cancellationToken);
+            return this.ToActionResult(result);
+        }
+
+        [Authorize]
+        [HttpPost]
+        public async Task<ActionResult<Guid>> UpdateComment(UpdateCommentCommand command, CancellationToken cancellationToken)
+        {
+            var result = await _updateComment.UpdateComment(command, cancellationToken);
             return this.ToActionResult(result);
         }
 

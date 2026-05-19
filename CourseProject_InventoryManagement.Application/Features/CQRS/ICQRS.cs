@@ -43,6 +43,14 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS
         {
             Task<Result> RevokeRefreshToken(RevokeRefreshTokenCommand command, CancellationToken cancellationToken = default);
         }
+        public interface IGetActiveSessions
+        {
+            Task<Result<List<ActiveSessionDto>>> GetActiveSessions(GetActiveSessionsQuery query, CancellationToken cancellationToken = default);
+        }
+        public interface IRevokeAllRefreshTokens
+        {
+            Task<Result<int>> RevokeAllRefreshTokens(RevokeAllRefreshTokensCommand command, CancellationToken cancellationToken = default);
+        }
 
         public interface IGetCurrentUser
         {
@@ -112,6 +120,14 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS
         {
             Task<Result<List<InventoryAccessListDto>>> GetInventoryAccessList(Guid inventoryId, CancellationToken cancellationToken = default);
         }
+        public interface IGetInventoryTagsByInventoryId
+        {
+            Task<Result<List<TagDto>>> GetInventoryTagsByInventoryId(Guid inventoryId, CancellationToken cancellationToken = default);
+        }
+        public interface IGetInventoryStatistics
+        {
+            Task<Result<GetInventoryStatisticsResult>> GetInventoryStatistics(Guid inventoryId, CancellationToken cancellationToken = default);
+        }
         public interface ISearchUsersForAccess
         {
             Task<Result<List<InventoryAccessUserLookupDto>>> SearchUsersForAccess(SearchUsersForAccessQuery query, CancellationToken cancellationToken = default);
@@ -139,6 +155,26 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS
         public interface IUpdateInventoryAccess
         {
             Task<Result<Guid>> UpdateInventoryAccess(UpdateInventoryAccessCommand command, CancellationToken cancellationToken = default);
+        }
+        public interface IUpdateInventoryTags
+        {
+            Task<Result<Guid>> UpdateInventoryTags(UpdateInventoryTagsCommand command, CancellationToken cancellationToken = default);
+        }
+        public interface IDeleteInventoryField
+        {
+            Task<Result<Guid>> DeleteInventoryField(DeleteInventoryFieldCommand command, CancellationToken cancellationToken = default);
+        }
+        public interface IReorderInventoryFields
+        {
+            Task<Result<Guid>> ReorderInventoryFields(ReorderInventoryFieldsCommand command, CancellationToken cancellationToken = default);
+        }
+        public interface IDeleteInventoryCustomIdRule
+        {
+            Task<Result<Guid>> DeleteInventoryCustomIdRule(DeleteInventoryCustomIdRuleCommand command, CancellationToken cancellationToken = default);
+        }
+        public interface IReorderInventoryCustomIdRules
+        {
+            Task<Result<Guid>> ReorderInventoryCustomIdRules(ReorderInventoryCustomIdRulesCommand command, CancellationToken cancellationToken = default);
         }
         #endregion
 
@@ -181,6 +217,10 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS
         public interface IToggleItemLike
         {
             Task<Result<bool>> ToggleItemLike(ToggleItemLikeCommand command, CancellationToken cancellationToken = default);
+        }
+        public interface IUpdateItemFieldValues
+        {
+            Task<Result<Guid>> UpdateItemFieldValues(UpdateItemFieldValuesCommand command, CancellationToken cancellationToken = default);
         }
         #endregion
 
@@ -343,7 +383,16 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS
         {
             Task<Result<Guid>> DeleteComment(Guid commentId, CancellationToken cancellationToken = default);
         }
+        public interface IUpdateComment
+        {
+            Task<Result<Guid>> UpdateComment(UpdateCommentCommand command, CancellationToken cancellationToken = default);
+        }
 
         #endregion
+
+        public interface IGetPopularTags
+        {
+            Task<Result<List<TagDto>>> GetPopularTags(GetPopularTagsQuery query, CancellationToken cancellationToken = default);
+        }
     }
 }

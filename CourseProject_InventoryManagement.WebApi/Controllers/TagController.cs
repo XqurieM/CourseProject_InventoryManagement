@@ -18,6 +18,7 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
         private readonly IGetTagById _getTagById;
         private readonly ISearchTags _searchTags;
         private readonly IGetInventoriesByTag _getInventoriesByTag;
+        private readonly IGetPopularTags _getPopularTags;
         private readonly ICreateTag _createTag;
         private readonly IUpdateTag _updateTag;
         private readonly IDeleteTag _deleteTag;
@@ -27,6 +28,7 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
             IGetTagById getTagById,
             ISearchTags searchTags,
             IGetInventoriesByTag getInventoriesByTag,
+            IGetPopularTags getPopularTags,
             ICreateTag createTag,
             IUpdateTag updateTag,
             IDeleteTag deleteTag)
@@ -35,6 +37,7 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
             _getTagById = getTagById;
             _searchTags = searchTags;
             _getInventoriesByTag = getInventoriesByTag;
+            _getPopularTags = getPopularTags;
             _createTag = createTag;
             _updateTag = updateTag;
             _deleteTag = deleteTag;
@@ -53,6 +56,14 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
         public async Task<ActionResult<TagDto>> GetTagById(Guid tagId, CancellationToken cancellationToken)
         {
             var result = await _getTagById.GetTagById(tagId, cancellationToken);
+            return this.ToActionResult(result);
+        }
+
+        [Authorize]
+        [HttpGet]
+        public async Task<ActionResult<List<TagDto>>> GetPopularTags([FromQuery] GetPopularTagsQuery query, CancellationToken cancellationToken)
+        {
+            var result = await _getPopularTags.GetPopularTags(query, cancellationToken);
             return this.ToActionResult(result);
         }
 

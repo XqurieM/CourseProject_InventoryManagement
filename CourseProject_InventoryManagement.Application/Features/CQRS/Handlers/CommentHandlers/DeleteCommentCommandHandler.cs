@@ -1,6 +1,7 @@
 ﻿using Ardalis.Result;
 using CourseProject_InventoryManagement.Application.Abstractions.Authentication;
 using CourseProject_InventoryManagement.Application.Abstractions.Authorization;
+using CourseProject_InventoryManagement.Application.Abstractions.Notifications;
 using CourseProject_InventoryManagement.Application.Abstractions.Persistence;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Results;
 using CourseProject_InventoryManagement.Domain.Entities;
@@ -19,12 +20,14 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.C
         private readonly IAppDbContext _context;
         private readonly IAuthenticatedUserService _authenticatedUserService;
         private readonly IInventoryAuthorizationService _inventoryAuthorizationService;
+        private readonly ICommentNotificationService _commentNotificationService;
 
-        public DeleteCommentCommandHandler(IAppDbContext context, IAuthenticatedUserService authenticatedUserService, IInventoryAuthorizationService inventoryAuthorizationService)
+        public DeleteCommentCommandHandler(IAppDbContext context, IAuthenticatedUserService authenticatedUserService, IInventoryAuthorizationService inventoryAuthorizationService, ICommentNotificationService commentNotificationService)
         {
             _context = context;
             _authenticatedUserService = authenticatedUserService;
             _inventoryAuthorizationService = inventoryAuthorizationService;
+            _commentNotificationService = commentNotificationService;
         }
 
         public async Task<Result<Guid>> DeleteComment(Guid commentId, CancellationToken cancellationToken = default)
@@ -53,6 +56,7 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.C
             commentExists.UpdatedByUserId = userResult.Value.Id;
 
             await _context.SaveChangesAsync(cancellationToken);
+            await _commentNotificationService.SendCommentDeletedNotificationAsync(commentExists.InventoryId, commentExists.Id, cancellationToken);
 
             return Result.Success(commentId);
         }
