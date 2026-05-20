@@ -56,12 +56,12 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.I
                     DisplayOrder = x.DisplayOrder > 0 ? x.DisplayOrder : index + 1,
                     x.IsPrimary
                 })
+                .GroupBy(x => x.ImageUrl, StringComparer.OrdinalIgnoreCase)
+                .Select(group => group
+                    .OrderByDescending(x => x.IsPrimary)
+                    .ThenBy(x => x.DisplayOrder)
+                    .First())
                 .ToList();
-
-            if (normalizedImages.Select(x => x.ImageUrl).Distinct(StringComparer.OrdinalIgnoreCase).Count() != normalizedImages.Count)
-            {
-                return Result<Guid>.Invalid(new ValidationError(nameof(command.Images), "Duplicate image URLs are not allowed for the same item."));
-            }
 
             if (normalizedImages.Count > 0 && normalizedImages.All(x => !x.IsPrimary))
             {

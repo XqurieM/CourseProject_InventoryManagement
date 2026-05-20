@@ -30,40 +30,16 @@ namespace CourseProject_InventoryManagement.Infrastructure.Storage
             if (string.IsNullOrWhiteSpace(_settings.BotToken) || string.IsNullOrWhiteSpace(_settings.ChatId))
                 throw new InvalidOperationException("Telegram BotToken or ChatId is not configured.");
 
-            using var content = new MultipartFormDataContent();
-            using var stream = file.OpenReadStream();
-            var fileContent = new StreamContent(stream);
-            if (!string.IsNullOrEmpty(file.ContentType))
-            {
-                fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse(file.ContentType);
-            }
-            
-            content.Add(new StringContent(_settings.ChatId), "chat_id");
-            content.Add(fileContent, "photo", file.FileName);
-
-            var url = $"https://api.telegram.org/bot{_settings.BotToken}/sendPhoto";
-            var response = await _httpClient.PostAsync(url, content, cancellationToken);
-            response.EnsureSuccessStatusCode();
-
-            var responseString = await response.Content.ReadAsStringAsync(cancellationToken);
-            using var document = JsonDocument.Parse(responseString);
-            
-
-            var photoArray = document.RootElement
-                .GetProperty("result")
-                .GetProperty("photo");
-                
-            var fileId = photoArray[photoArray.GetArrayLength() - 1]
-                .GetProperty("file_id")
-                .GetString();
+            var fileId = await UploadToTelegramAndGetFileIdAsync(file, cancellationToken);
 
             if (string.IsNullOrEmpty(fileId))
                 throw new Exception("Failed to retrieve file_id from Telegram");
 
             var request = _httpContextAccessor.HttpContext?.Request;
-            var baseUrl = !string.IsNullOrWhiteSpace(_settings.ApiBaseUrl) 
-                ? _settings.ApiBaseUrl 
-                : (request != null ? $"{request.Scheme}://{request.Host}" : "");
+            var baseUrl = NormalizeBaseUrl(
+                !string.IsNullOrWhiteSpace(_settings.ApiBaseUrl)
+                    ? _settings.ApiBaseUrl
+                    : (request != null ? $"{request.Scheme}://{request.Host}" : ""));
             
             var proxyUrl = $"{baseUrl.TrimEnd('/')}/General/ProxyTelegramImage?fileId={fileId}";
 
@@ -103,6 +79,122 @@ namespace CourseProject_InventoryManagement.Infrastructure.Storage
 
             var directUrl = $"https://api.telegram.org/file/bot{_settings.BotToken}/{filePath}";
             return Result<string>.Success(directUrl);
+        }
+
+        private async Task<string> UploadToTelegramAndGetFileIdAsync(IFormFile file, CancellationToken cancellationToken)
+        {
+            var photoResult = await TryUploadAsync(file, "sendPhoto", "photo", cancellationToken);
+            if (photoResult.IsSuccess)
+            {
+                return photoResult.Value;
+            }
+
+            var documentResult = await TryUploadAsync(file, "sendDocument", "document", cancellationToken);
+            if (documentResult.IsSuccess)
+            {
+                return documentResult.Value;
+            }
+
+            throw new HttpRequestException(
+                $"Telegram upload failed. Photo error: {GetResultMessage(photoResult)}. Document error: {GetResultMessage(documentResult)}.");
+        }
+
+        private async Task<Result<string>> TryUploadAsync(IFormFile file, string endpoint, string fileFieldName, CancellationToken cancellationToken)
+        {
+            using var content = new MultipartFormDataContent();
+            using var stream = file.OpenReadStream();
+            using var fileContent = new StreamContent(stream);
+
+            if (!string.IsNullOrEmpty(file.ContentType))
+            {
+                fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse(file.ContentType);
+            }
+
+            content.Add(new StringContent(_settings.ChatId), "chat_id");
+            content.Add(fileContent, fileFieldName, file.FileName);
+
+            var url = $"https://api.telegram.org/bot{_settings.BotToken}/{endpoint}";
+            var response = await _httpClient.PostAsync(url, content, cancellationToken);
+            var responseString = await response.Content.ReadAsStringAsync(cancellationToken);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                return Result<string>.Error($"Telegram {endpoint} failed with {(int)response.StatusCode}: {responseString}");
+            }
+
+            using var document = JsonDocument.Parse(responseString);
+            if (!document.RootElement.TryGetProperty("ok", out var okElement) || !okElement.GetBoolean())
+            {
+                return Result<string>.Error($"Telegram {endpoint} returned a failure payload.");
+            }
+
+            if (!document.RootElement.TryGetProperty("result", out var resultElement))
+            {
+                return Result<string>.Error($"Telegram {endpoint} response did not include a result payload.");
+            }
+
+            if (endpoint.Equals("sendPhoto", StringComparison.OrdinalIgnoreCase))
+            {
+                if (resultElement.TryGetProperty("photo", out var photoArray) && photoArray.ValueKind == JsonValueKind.Array && photoArray.GetArrayLength() > 0)
+                {
+                    var fileId = photoArray[photoArray.GetArrayLength() - 1].GetProperty("file_id").GetString();
+                    if (!string.IsNullOrWhiteSpace(fileId))
+                    {
+                        return Result<string>.Success(fileId);
+                    }
+                }
+            }
+            else if (resultElement.TryGetProperty("document", out var documentElement))
+            {
+                var fileId = documentElement.GetProperty("file_id").GetString();
+                if (!string.IsNullOrWhiteSpace(fileId))
+                {
+                    return Result<string>.Success(fileId);
+                }
+            }
+
+            return Result<string>.Error($"Telegram {endpoint} response did not contain a usable file_id.");
+        }
+
+        private static string GetResultMessage(Result<string> result)
+        {
+            if (result.Errors.Any())
+            {
+                return string.Join(" | ", result.Errors);
+            }
+
+            if (result.ValidationErrors.Any())
+            {
+                return string.Join(" | ", result.ValidationErrors.Select(x => x.ErrorMessage));
+            }
+
+            return result.Status.ToString();
+        }
+
+        private static string NormalizeBaseUrl(string baseUrl)
+        {
+            if (string.IsNullOrWhiteSpace(baseUrl))
+            {
+                return string.Empty;
+            }
+
+            if (!Uri.TryCreate(baseUrl, UriKind.Absolute, out var uri))
+            {
+                return baseUrl;
+            }
+
+            if (uri.Scheme.Equals(Uri.UriSchemeHttp, StringComparison.OrdinalIgnoreCase) && !uri.IsLoopback)
+            {
+                var builder = new UriBuilder(uri)
+                {
+                    Scheme = Uri.UriSchemeHttps,
+                    Port = uri.Port == 80 ? -1 : uri.Port
+                };
+
+                return builder.Uri.ToString().TrimEnd('/');
+            }
+
+            return uri.ToString().TrimEnd('/');
         }
     }
 }

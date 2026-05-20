@@ -201,32 +201,68 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
+var allowedCorsOrigins = builder.Configuration
+    .GetSection("Cors:AllowedOrigins")
+    .Get<string[]>()
+    ?.Where(origin => !string.IsNullOrWhiteSpace(origin))
+    .Distinct(StringComparer.OrdinalIgnoreCase)
+    .ToArray()
+    ?? ["https://localhost:7214", "http://localhost:5214"];
+
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowUIPort",
-        policy =>
-        {
-            policy.WithOrigins("https://localhost:7214", "http://localhost:5214") 
-                  .AllowAnyHeader()
-                  .AllowAnyMethod()
-                  .AllowCredentials(); 
-        });
+    options.AddPolicy("AllowUIPort", policy =>
+    {
+        policy.WithOrigins(allowedCorsOrigins)
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
 });
 
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
+//if (app.Environment.IsDevelopment())
+//{
     app.UseSwagger();
     app.UseSwaggerUI();
-}
+//}
+
+var allowedCorsOriginSet = new HashSet<string>(allowedCorsOrigins, StringComparer.OrdinalIgnoreCase);
+
+app.Use(async (context, next) =>
+{
+    var origin = context.Request.Headers.Origin.ToString();
+    if (!string.IsNullOrWhiteSpace(origin) && allowedCorsOriginSet.Contains(origin))
+    {
+        context.Response.Headers["Access-Control-Allow-Origin"] = origin;
+        context.Response.Headers["Vary"] = "Origin";
+        context.Response.Headers["Access-Control-Allow-Credentials"] = "true";
+    }
+
+    if (HttpMethods.IsOptions(context.Request.Method) &&
+        !string.IsNullOrWhiteSpace(origin) &&
+        allowedCorsOriginSet.Contains(origin) &&
+        context.Request.Headers.ContainsKey("Access-Control-Request-Method"))
+    {
+        var requestedHeaders = context.Request.Headers["Access-Control-Request-Headers"].ToString();
+        context.Response.Headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, PATCH, DELETE, OPTIONS";
+        context.Response.Headers["Access-Control-Allow-Headers"] =
+            string.IsNullOrWhiteSpace(requestedHeaders) ? "*" : requestedHeaders;
+        context.Response.StatusCode = StatusCodes.Status204NoContent;
+        return;
+    }
+
+    await next();
+});
+
 app.UseRouting();
 app.UseCors("AllowUIPort");
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
-app.MapControllers();
-app.MapHub<CommentHub>("/commentHub");
+app.MapControllers().RequireCors("AllowUIPort");
+app.MapHub<CommentHub>("/commentHub").RequireCors("AllowUIPort");
 app.Run();
