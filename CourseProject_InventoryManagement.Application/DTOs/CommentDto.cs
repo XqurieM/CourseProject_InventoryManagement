@@ -13,6 +13,7 @@ namespace CourseProject_InventoryManagement.Application.DTOs
         public string Content { get; set; }
         public DateTime CreatedAtUtc { get; set; }
         public Guid CreatedByUserId { get; set; }
+        public string CreatedByUserName { get; set; }
         public DateTime UpdatedAtUtc { get; set; }
         public Guid UpdatedByUserId { get; set; }
         public bool IsDeleted { get; set; }

@@ -57,6 +57,10 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.C
                     Content = c.Content,
                     CreatedAtUtc = c.CreatedAtUtc,
                     CreatedByUserId = c.CreatedByUserId,
+                    CreatedByUserName = _context.Users
+                        .Where(u => u.Id == c.CreatedByUserId)
+                        .Select(u => u.UserName)
+                        .FirstOrDefault() ?? string.Empty,
                     UpdatedAtUtc = c.UpdatedAtUtc ?? c.CreatedAtUtc,
                     UpdatedByUserId = c.UpdatedByUserId ?? c.CreatedByUserId,
                     IsDeleted = c.IsDeleted,
