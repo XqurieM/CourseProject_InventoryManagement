@@ -21,5 +21,7 @@ namespace CourseProject_InventoryManagement.Application.DTOs
         public string ItemName { get; set; }
         public int LikeCount { get; set; }
         public bool IsLikedByCurrentUser { get; set; }
+        public string? PrimaryImageUrl { get; set; }
+        public List<ItemImageDto> Images { get; set; } = new();
     }
 }

@@ -24,6 +24,7 @@ public class AppDbContext :DbContext, IAppDbContext
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
     public DbSet<Item> Items => Set<Item>();
+    public DbSet<ItemImage> ItemImages => Set<ItemImage>();
     public DbSet<ItemFieldValue> ItemFieldValues => Set<ItemFieldValue>();
 
     public DbSet<Comment> Comments => Set<Comment>();

@@ -12,11 +12,16 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.A
     {
         private readonly IAppDbContext _context;
         private readonly IAuthenticatedUserService _authenticatedUserService;
+        private readonly IRefreshTokenService _refreshTokenService;
 
-        public RevokeAllRefreshTokensCommandHandler(IAppDbContext context, IAuthenticatedUserService authenticatedUserService)
+        public RevokeAllRefreshTokensCommandHandler(
+            IAppDbContext context,
+            IAuthenticatedUserService authenticatedUserService,
+            IRefreshTokenService refreshTokenService)
         {
             _context = context;
             _authenticatedUserService = authenticatedUserService;
+            _refreshTokenService = refreshTokenService;
         }
 
         public async Task<Result<int>> RevokeAllRefreshTokens(RevokeAllRefreshTokensCommand command, CancellationToken cancellationToken = default)
@@ -27,8 +32,15 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.A
                 return ResultFailureMapper.MapFailure<AppUser, int>(userResult);
             }
 
+            var currentRefreshTokenHash = string.IsNullOrWhiteSpace(command.CurrentRefreshToken)
+                ? null
+                : _refreshTokenService.ComputeHash(command.CurrentRefreshToken);
+
             var tokens = await _context.RefreshTokens
-                .Where(x => x.UserId == userResult.Value.Id && !x.IsRevoked)
+                .Where(x =>
+                    x.UserId == userResult.Value.Id &&
+                    !x.IsRevoked &&
+                    (currentRefreshTokenHash == null || x.TokenHash != currentRefreshTokenHash))
                 .ToListAsync(cancellationToken);
 
             var utcNow = DateTime.UtcNow;

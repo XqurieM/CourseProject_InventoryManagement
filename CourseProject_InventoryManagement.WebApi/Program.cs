@@ -112,6 +112,7 @@ builder.Services.AddScoped<ICQRS.IGetMyEditableInventories, GetMyEditableInvento
 builder.Services.AddScoped<ICQRS.IGetOwnInventories, GetMyOwnInventoriesQueryHandler>();
 builder.Services.AddScoped<ICQRS.IGetItemsByInventoryId, GetItemsByInventoryIdQueryHandler>();
 builder.Services.AddScoped<ICQRS.IGetItemById, GetItemByIdQueryHandler>();
+builder.Services.AddScoped<ICQRS.IGetItemImagesByItemId, GetItemImagesByItemIdQueryHandler>();
 builder.Services.AddScoped<ICQRS.IGetItemFieldValuesByInventoryId, GetItemFieldValuesByInventoryIdQueryHandler>();
 builder.Services.AddScoped<ICQRS.IGetItemFieldValuesByItemId, GetItemFieldValuesByItemIdQueryHandler>();
 builder.Services.AddScoped<ICQRS.IToggleItemLike, ToggleItemLikeCommandHandler>();
@@ -141,6 +142,7 @@ builder.Services.AddScoped<ICQRS.IUpdateInventoryAccess, UpdateInventoryAccessCo
 builder.Services.AddScoped<ICQRS.IUpdateInventory, UpdateInventoryCommandHandler>();
 builder.Services.AddScoped<ICQRS.IUpdateInventoryTags, UpdateInventoryTagsCommandHandler>();
 builder.Services.AddScoped<ICQRS.IUpdateItem, UpdateItemCommandHandler>();
+builder.Services.AddScoped<ICQRS.IUpdateItemImages, UpdateItemImagesCommandHandler>();
 builder.Services.AddScoped<ICQRS.IUpdateItemFieldValues, UpdateItemFieldValuesCommandHandler>();
 builder.Services.AddScoped<ICQRS.IDeleteItem, DeleteItemCommandHandler>();
 builder.Services.AddScoped<ICQRS.IDeleteComment, DeleteCommentCommandHandler>();

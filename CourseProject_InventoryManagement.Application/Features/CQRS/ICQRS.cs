@@ -209,6 +209,10 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS
         {
             Task<Result<List<ItemFieldValuesResult>>> GetItemFieldValuesByItemId(Guid itemId, CancellationToken cancellationToken = default);
         }
+        public interface IGetItemImagesByItemId
+        {
+            Task<Result<List<ItemImageDto>>> GetItemImagesByItemId(Guid itemId, CancellationToken cancellationToken = default);
+        }
         public interface IGetItemFieldValuesByInventoryId
         {
             Task<Result<List<ItemFieldValuesResult>>> GetItemFieldValuesByInventoryId(Guid inventoryId, CancellationToken cancellationToken = default);
@@ -221,6 +225,10 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS
         public interface IUpdateItemFieldValues
         {
             Task<Result<Guid>> UpdateItemFieldValues(UpdateItemFieldValuesCommand command, CancellationToken cancellationToken = default);
+        }
+        public interface IUpdateItemImages
+        {
+            Task<Result<Guid>> UpdateItemImages(UpdateItemImagesCommand command, CancellationToken cancellationToken = default);
         }
         #endregion
 

@@ -20,10 +20,12 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
         private readonly IUpdateItem _updateItem;
         private readonly IDeleteItem _deleteItem;
         private readonly IGetItemById _getItemById;
+        private readonly IGetItemImagesByItemId _getItemImagesByItemId;
         private readonly IToggleItemLike _toggleItemLike;
         private readonly IUpdateItemFieldValues _updateItemFieldValues;
+        private readonly IUpdateItemImages _updateItemImages;
 
-        public ItemController(IAddItem addItem, IAddItemFieldValues addItemFieldValues, IGetItemsByInventoryId getItemsByInventoryId, IGetItemFieldValuesByItemId getItemFieldValuesByItemId, IGetItemFieldValuesByInventoryId getItemFieldValuesByInventoryId, IUpdateItem updateItem, IDeleteItem deleteItem, IGetItemById getItemById, IToggleItemLike toggleItemLike, IUpdateItemFieldValues updateItemFieldValues)
+        public ItemController(IAddItem addItem, IAddItemFieldValues addItemFieldValues, IGetItemsByInventoryId getItemsByInventoryId, IGetItemFieldValuesByItemId getItemFieldValuesByItemId, IGetItemFieldValuesByInventoryId getItemFieldValuesByInventoryId, IUpdateItem updateItem, IDeleteItem deleteItem, IGetItemById getItemById, IGetItemImagesByItemId getItemImagesByItemId, IToggleItemLike toggleItemLike, IUpdateItemFieldValues updateItemFieldValues, IUpdateItemImages updateItemImages)
         {
             _addItem = addItem;
             _addItemFieldValues = addItemFieldValues;
@@ -33,8 +35,10 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
             _updateItem = updateItem;
             _deleteItem = deleteItem;
             _getItemById = getItemById;
+            _getItemImagesByItemId = getItemImagesByItemId;
             _toggleItemLike = toggleItemLike;
             _updateItemFieldValues = updateItemFieldValues;
+            _updateItemImages = updateItemImages;
         }
 
         [Authorize]
@@ -110,10 +114,26 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
         }
 
         [Authorize]
+        [HttpGet]
+        public async Task<ActionResult<List<ItemImageDto>>> GetItemImagesByItemId(Guid itemId, CancellationToken cancellationToken)
+        {
+            var result = await _getItemImagesByItemId.GetItemImagesByItemId(itemId, cancellationToken);
+            return this.ToActionResult(result);
+        }
+
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult<bool>> ToggleItemLike(ToggleItemLikeCommand command, CancellationToken cancellationToken)
         {
             var result = await _toggleItemLike.ToggleItemLike(command, cancellationToken);
+            return this.ToActionResult(result);
+        }
+
+        [Authorize]
+        [HttpPost]
+        public async Task<ActionResult<Guid>> UpdateItemImages(UpdateItemImagesCommand command, CancellationToken cancellationToken)
+        {
+            var result = await _updateItemImages.UpdateItemImages(command, cancellationToken);
             return this.ToActionResult(result);
         }
     }

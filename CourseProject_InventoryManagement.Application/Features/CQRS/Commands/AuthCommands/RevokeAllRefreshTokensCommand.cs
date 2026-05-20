@@ -2,5 +2,6 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS.Commands.A
 {
     public class RevokeAllRefreshTokensCommand
     {
+        public string? CurrentRefreshToken { get; set; }
     }
 }

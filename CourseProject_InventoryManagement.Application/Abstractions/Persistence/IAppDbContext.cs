@@ -10,6 +10,7 @@ namespace CourseProject_InventoryManagement.Application.Abstractions.Persistence
         DbSet<Inventory> Inventories { get; }
         DbSet<Category> Categories { get; }
         DbSet<Item> Items { get; }
+        DbSet<ItemImage> ItemImages { get; }
         DbSet<ItemFieldValue> ItemFieldValues { get; }
         DbSet<InventoryField> InventoryFields { get; }
         DbSet<InventoryCustomIdRule> InventoryCustomIdRules { get; }

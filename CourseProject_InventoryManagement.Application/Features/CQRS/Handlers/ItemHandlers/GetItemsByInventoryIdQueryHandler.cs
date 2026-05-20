@@ -56,7 +56,12 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.I
                             DeletedAtUtc = p.DeletedAtUtc ?? DateTime.MinValue,
                             ItemName = p.ItemName,
                             LikeCount = p.Likes.Count(),
-                            IsLikedByCurrentUser = p.Likes.Any(l => l.CreatedByUserId == userResult.Value.Id)
+                            IsLikedByCurrentUser = p.Likes.Any(l => l.CreatedByUserId == userResult.Value.Id),
+                            PrimaryImageUrl = p.Images
+                                .OrderByDescending(img => img.IsPrimary)
+                                .ThenBy(img => img.DisplayOrder)
+                                .Select(img => img.ImageUrl)
+                                .FirstOrDefault()
                         };
 
             return Result.Success(await items.ToListAsync(cancellationToken));
