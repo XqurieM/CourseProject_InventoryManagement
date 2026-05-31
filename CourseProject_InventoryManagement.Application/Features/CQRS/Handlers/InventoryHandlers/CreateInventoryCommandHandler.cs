@@ -1,3 +1,4 @@
+using System;
 using Ardalis.Result;
 using CourseProject_InventoryManagement.Application.Abstractions.Authentication;
 using CourseProject_InventoryManagement.Application.Abstractions.Persistence;
@@ -51,7 +52,8 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.I
                 CategoryId = command.CategoryId,
                 ImageUrl = command.ImageUrl?.Trim(),
                 IsPublic = command.IsPublic,
-                CreatedByUserId = userResult.Value.Id
+                CreatedByUserId = userResult.Value.Id,
+                ApiToken = Guid.NewGuid().ToString("N") + Guid.NewGuid().ToString("N")
             };
 
             await _context.Inventories.AddAsync(inventory, cancellationToken);

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,5 +20,6 @@ namespace CourseProject_InventoryManagement.Application.DTOs
         public Guid CreatedByUserId { get; set; }
         public bool CanManageInventory { get; set; }
         public bool CanWriteItems { get; set; }
+        public string? ApiToken { get; set; }
     }
 }

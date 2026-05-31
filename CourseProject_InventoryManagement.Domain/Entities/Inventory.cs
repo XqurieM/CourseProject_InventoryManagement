@@ -1,4 +1,4 @@
-﻿using CourseProject_InventoryManagement.Domain.Common;
+using CourseProject_InventoryManagement.Domain.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +14,7 @@ namespace CourseProject_InventoryManagement.Domain.Entities
         public Guid CategoryId { get; set; }
         public string? ImageUrl { get; set; }
         public bool IsPublic { get; set; }
+        public string? ApiToken { get; set; }
         public byte[] RowVersion { get; set; } = Array.Empty<byte>();
         public Category Category { get; set; } = null!;
         public ICollection<InventoryField> Fields { get; set; } = new List<InventoryField>();

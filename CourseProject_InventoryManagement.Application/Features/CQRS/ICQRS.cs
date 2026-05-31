@@ -108,6 +108,26 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS
         {
             Task<Result<List<GetProfileInventoriesResult>>> GetOwnInventories(Guid UserId, CancellationToken cancellationToken = default);
         }
+
+        public interface IGetOdooAggregatedResults
+        {
+            Task<Result<OdooInventoryAggregateDto>> GetOdooAggregatedResults(GetOdooAggregatedResultsQuery query, CancellationToken cancellationToken = default);
+        }
+
+        public interface IGenerateInventoryApiToken
+        {
+            Task<Result<string>> GenerateInventoryApiToken(GenerateInventoryApiTokenCommand command, CancellationToken cancellationToken = default);
+        }
+
+        public interface ICreateOdooItems
+        {
+            Task<Result<List<Guid>>> CreateOdooItems(CreateOdooItemsCommand command, CancellationToken cancellationToken = default);
+        }
+
+        public interface IDeleteOdooItem
+        {
+            Task<Result> DeleteOdooItem(DeleteOdooItemCommand command, CancellationToken cancellationToken = default);
+        }
         public interface IGetInventoryFieldsByInventoryId
         {
             Task<Result<List<GetInventoryFieldsByInventoryIdResult>>> GetInventoryFieldsByInventoryId(Guid inventoryId, CancellationToken cancellationToken = default);
@@ -266,6 +286,11 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS
         public interface IRevokeAdminRole
         {
             Task<Result<Guid>> RevokeAdminRole(RevokeAdminRoleCommand command, CancellationToken cancellationToken = default);
+        }
+
+        public interface IIntegrateSalesforce
+        {
+            Task<Result<SalesforceIntegrationResultDto>> IntegrateSalesforce(IntegrateSalesforceCommand command, CancellationToken cancellationToken = default);
         }
         #endregion
 

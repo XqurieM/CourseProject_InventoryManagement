@@ -15,3 +15,12 @@
 /CourseProject_InventoryManagement.Contracts/obj
 /CourseProject_InventoryManagement.Infrastructure/Keys/*.json
 /CourseProject_InventoryManagement.WebApi/wwwroot/uploads/
+**/bin/
+**/obj/
+*.user
+*.pubxml.user
+*.publishsettings
+CourseProject_InventoryManagement.WebApi/Properties/PublishProfiles/
+CourseProject_InventoryManagement.WebApi/Properties/ServiceDependencies/
+CourseProject_InventoryManagement.WebApi/Properties/serviceDependencies*.json
+CourseProject_InventoryManagement.WebApi/appsettings.Local.json

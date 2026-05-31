@@ -1,4 +1,4 @@
-﻿using CourseProject_InventoryManagement.Domain.Entities;
+using CourseProject_InventoryManagement.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
@@ -40,10 +40,16 @@ namespace CourseProject_InventoryManagement.Infrastructure.Persistence.Configura
                 .HasForeignKey(x => x.CategoryId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            builder.Property(x => x.ApiToken)
+                .HasMaxLength(100);
+
             builder.HasIndex(x => x.CategoryId);
             builder.HasIndex(x => x.CreatedByUserId);
             builder.HasIndex(x => x.CreatedAtUtc);
             builder.HasIndex(x => x.IsPublic);
+            builder.HasIndex(x => x.ApiToken)
+                .IsUnique()
+                .HasFilter("[ApiToken] IS NOT NULL");
         }
     }
 }

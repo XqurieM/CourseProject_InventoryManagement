@@ -6,6 +6,8 @@ using CourseProject_InventoryManagement.Application.Features.CQRS.Results.Invent
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using static CourseProject_InventoryManagement.Application.Features.CQRS.ICQRS;
+using CourseProject_InventoryManagement.Application.Abstractions.Persistence;
+using Microsoft.EntityFrameworkCore;
 
 namespace CourseProject_InventoryManagement.WebApi.Controllers
 {
@@ -37,6 +39,10 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
         private readonly IUpdateInventory _updateInventory;
         private readonly IDeleteInventory _deleteInventory;
         private readonly ISearchUsersForAccess _searchUsersForAccess;
+        private readonly IGetOdooAggregatedResults _getOdooAggregatedResults;
+        private readonly IGenerateInventoryApiToken _generateInventoryApiToken;
+        private readonly ICreateOdooItems _createOdooItems;
+        private readonly IDeleteOdooItem _deleteOdooItem;
 
         public InventoryController(
             ICreateInventory createInventory,
@@ -62,7 +68,11 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
             IGetInventoryStatistics getInventoryStatistics,
             IUpdateInventory updateInventory,
             IDeleteInventory deleteInventory,
-            ISearchUsersForAccess searchUsersForAccess)
+            ISearchUsersForAccess searchUsersForAccess,
+            IGetOdooAggregatedResults getOdooAggregatedResults,
+            IGenerateInventoryApiToken generateInventoryApiToken,
+            ICreateOdooItems createOdooItems,
+            IDeleteOdooItem deleteOdooItem)
         {
             _createInventory = createInventory;
             _getInventoryById = getInventoryById;
@@ -88,6 +98,10 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
             _updateInventory = updateInventory;
             _deleteInventory = deleteInventory;
             _searchUsersForAccess = searchUsersForAccess;
+            _getOdooAggregatedResults = getOdooAggregatedResults;
+            _generateInventoryApiToken = generateInventoryApiToken;
+            _createOdooItems = createOdooItems;
+            _deleteOdooItem = deleteOdooItem;
         }
 
         [Authorize]
@@ -279,6 +293,52 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
         public async Task<ActionResult<Guid>> DeleteInventory(DeleteInventoryCommand command, CancellationToken cancellationToken)
         {
             var result = await _deleteInventory.DeleteInventory(command, cancellationToken);
+            return this.ToActionResult(result);
+        }
+
+        [AllowAnonymous]
+        [HttpGet]
+        public async Task<ActionResult<OdooInventoryAggregateDto>> GetOdooAggregatedResults([FromQuery] string token, CancellationToken cancellationToken)
+        {
+            var result = await _getOdooAggregatedResults.GetOdooAggregatedResults(new GetOdooAggregatedResultsQuery { Token = token }, cancellationToken);
+            return this.ToActionResult(result);
+        }
+
+        [AllowAnonymous]
+        [HttpPost]
+        public async Task<ActionResult<List<Guid>>> CreateOdooItems(CreateOdooItemsCommand command, CancellationToken cancellationToken)
+        {
+            var result = await _createOdooItems.CreateOdooItems(command, cancellationToken);
+            return this.ToActionResult(result);
+        }
+
+        [AllowAnonymous]
+        [HttpPost]
+        public async Task<ActionResult> DeleteOdooItem(DeleteOdooItemCommand command, CancellationToken cancellationToken)
+        {
+            var result = await _deleteOdooItem.DeleteOdooItem(command, cancellationToken);
+            return this.ToActionResult(result);
+        }
+
+        [AllowAnonymous]
+        [HttpGet]
+        public async Task<ActionResult<string>> RestoreAllItems([FromServices] IAppDbContext context, CancellationToken cancellationToken)
+        {
+            var items = await context.Items.IgnoreQueryFilters().ToListAsync(cancellationToken);
+            foreach (var item in items)
+            {
+                item.IsDeleted = false;
+                item.DeletedAtUtc = null;
+            }
+            await context.SaveChangesAsync(cancellationToken);
+            return Ok($"Successfully restored {items.Count} items in database!");
+        }
+
+        [Authorize]
+        [HttpPost("{id}")]
+        public async Task<ActionResult<string>> GenerateApiToken(Guid id, CancellationToken cancellationToken)
+        {
+            var result = await _generateInventoryApiToken.GenerateInventoryApiToken(new GenerateInventoryApiTokenCommand { InventoryId = id }, cancellationToken);
             return this.ToActionResult(result);
         }
     }

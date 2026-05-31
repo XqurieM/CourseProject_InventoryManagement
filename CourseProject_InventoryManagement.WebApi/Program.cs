@@ -5,6 +5,8 @@ using CourseProject_InventoryManagement.Application.Abstractions.Localization;
 using CourseProject_InventoryManagement.Application.Abstractions.Notifications;
 using CourseProject_InventoryManagement.Application.Abstractions.Persistence;
 using CourseProject_InventoryManagement.Application.Abstractions.Storage;
+using CourseProject_InventoryManagement.Application.Abstractions.Integrations;
+using CourseProject_InventoryManagement.Infrastructure.Integrations;
 using CourseProject_InventoryManagement.Application.Features.CQRS;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Handlers;
 using CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.AuthHandlers;
@@ -34,6 +36,7 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
 
 builder.Services.AddControllers(options =>
 {
@@ -110,6 +113,10 @@ builder.Services.AddScoped<ICQRS.IGetLast10Inventories, GetLast10InventoriesQuer
 builder.Services.AddScoped<ICQRS.IGetPopular5Inventories, GetPopular5InventoriesQueryHandler>();
 builder.Services.AddScoped<ICQRS.IGetMyEditableInventories, GetMyEditableInventoriesQueryHandler>();
 builder.Services.AddScoped<ICQRS.IGetOwnInventories, GetMyOwnInventoriesQueryHandler>();
+builder.Services.AddScoped<ICQRS.IGetOdooAggregatedResults, GetOdooAggregatedResultsQueryHandler>();
+builder.Services.AddScoped<ICQRS.IGenerateInventoryApiToken, GenerateInventoryApiTokenCommandHandler>();
+builder.Services.AddScoped<ICQRS.ICreateOdooItems, CreateOdooItemsCommandHandler>();
+builder.Services.AddScoped<ICQRS.IDeleteOdooItem, DeleteOdooItemCommandHandler>();
 builder.Services.AddScoped<ICQRS.IGetItemsByInventoryId, GetItemsByInventoryIdQueryHandler>();
 builder.Services.AddScoped<ICQRS.IGetItemById, GetItemByIdQueryHandler>();
 builder.Services.AddScoped<ICQRS.IGetItemImagesByItemId, GetItemImagesByItemIdQueryHandler>();
@@ -172,6 +179,10 @@ builder.Services.AddScoped<ICQRS.IBulkUpsertLocalizationResources, BulkUpsertLoc
 builder.Services.AddScoped<ICQRS.IDeleteLocalizationResource, DeleteLocalizationResourceCommandHandler>();
 builder.Services.AddScoped<ICQRS.IUploadFile, UploadFileCommandHandler>();
 builder.Services.AddScoped<ICustomIdGenerator, CustomIdGenerator>();
+
+builder.Services.Configure<SalesforceSettings>(builder.Configuration.GetSection(SalesforceSettings.SectionName));
+builder.Services.AddHttpClient<ISalesforceService, SalesforceService>();
+builder.Services.AddScoped<ICQRS.IIntegrateSalesforce, IntegrateSalesforceCommandHandler>();
 
 builder.Services.AddHttpClient<TelegramStorageService>();
 builder.Services.AddScoped<ITelegramStorageProxy, TelegramStorageService>();

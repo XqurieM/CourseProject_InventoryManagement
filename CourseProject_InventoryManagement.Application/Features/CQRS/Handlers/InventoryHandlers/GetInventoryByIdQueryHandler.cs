@@ -46,7 +46,8 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS.Handlers.I
                     ImageUrl = x.ImageUrl,
                     RowVersion = x.RowVersion,
                     CreatedAtUtc = x.CreatedAtUtc,
-                    CreatedByUserId = x.CreatedByUserId
+                    CreatedByUserId = x.CreatedByUserId,
+                    ApiToken = x.ApiToken
                 })
                 .FirstOrDefaultAsync(cancellationToken);
 

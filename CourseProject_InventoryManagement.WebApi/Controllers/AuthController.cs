@@ -32,10 +32,11 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
         private readonly IGetCurrentUser _getCurrentUser;
         private readonly IUpdateUserLanguage _updateUserLanguage;
         private readonly IUpdateUserTheme _updateUserTheme;
+        private readonly IIntegrateSalesforce _integrateSalesforce;
         private readonly IPasswordHasher _passwordHasher;
         private readonly MicrosoftExternalLoginOptions _microsoftExternalLoginOptions;
 
-        public AuthController(IRegisterUser registerUser, ILoginUser loginUser, IRefreshAccessToken refreshAccessToken, IRevokeRefreshToken revokeRefreshToken, IRevokeAllRefreshTokens revokeAllRefreshTokens, IGetActiveSessions getActiveSessions, IGetCurrentUser getCurrentUser, IUpdateUserLanguage updateUserLanguage, IUpdateUserTheme updateUserTheme, IPasswordHasher passwordHasher, IOptions<MicrosoftExternalLoginOptions> microsoftExternalLoginOptions)
+        public AuthController(IRegisterUser registerUser, ILoginUser loginUser, IRefreshAccessToken refreshAccessToken, IRevokeRefreshToken revokeRefreshToken, IRevokeAllRefreshTokens revokeAllRefreshTokens, IGetActiveSessions getActiveSessions, IGetCurrentUser getCurrentUser, IUpdateUserLanguage updateUserLanguage, IUpdateUserTheme updateUserTheme, IIntegrateSalesforce integrateSalesforce, IPasswordHasher passwordHasher, IOptions<MicrosoftExternalLoginOptions> microsoftExternalLoginOptions)
         {
             _registerUser = registerUser;
             _loginUser = loginUser;
@@ -46,6 +47,7 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
             _getCurrentUser = getCurrentUser;
             _updateUserLanguage = updateUserLanguage;
             _updateUserTheme = updateUserTheme;
+            _integrateSalesforce = integrateSalesforce;
             _passwordHasher = passwordHasher;
             _microsoftExternalLoginOptions = microsoftExternalLoginOptions.Value;
         }
@@ -180,6 +182,14 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
         public async Task<ActionResult<List<ActiveSessionDto>>> GetActiveSessions(CancellationToken cancellationToken)
         {
             var result = await _getActiveSessions.GetActiveSessions(new GetActiveSessionsQuery(), cancellationToken);
+            return this.ToActionResult(result);
+        }
+
+        [Authorize]
+        [HttpPost]
+        public async Task<ActionResult<SalesforceIntegrationResultDto>> IntegrateSalesforce(IntegrateSalesforceCommand command, CancellationToken cancellationToken)
+        {
+            var result = await _integrateSalesforce.IntegrateSalesforce(command, cancellationToken);
             return this.ToActionResult(result);
         }
 
