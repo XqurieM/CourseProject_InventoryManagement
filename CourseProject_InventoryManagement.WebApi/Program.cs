@@ -178,11 +178,15 @@ builder.Services.AddScoped<ICQRS.IUpsertLocalizationResource, UpsertLocalization
 builder.Services.AddScoped<ICQRS.IBulkUpsertLocalizationResources, BulkUpsertLocalizationResourcesCommandHandler>();
 builder.Services.AddScoped<ICQRS.IDeleteLocalizationResource, DeleteLocalizationResourceCommandHandler>();
 builder.Services.AddScoped<ICQRS.IUploadFile, UploadFileCommandHandler>();
+builder.Services.AddScoped<ICQRS.ICreateSupportTicket, CreateSupportTicketCommandHandler>();
 builder.Services.AddScoped<ICustomIdGenerator, CustomIdGenerator>();
 
 builder.Services.Configure<SalesforceSettings>(builder.Configuration.GetSection(SalesforceSettings.SectionName));
 builder.Services.AddHttpClient<ISalesforceService, SalesforceService>();
 builder.Services.AddScoped<ICQRS.IIntegrateSalesforce, IntegrateSalesforceCommandHandler>();
+
+builder.Services.Configure<DropboxSettings>(builder.Configuration.GetSection(DropboxSettings.SectionName));
+builder.Services.AddHttpClient<IDropboxService, DropboxService>();
 
 builder.Services.AddHttpClient<TelegramStorageService>();
 builder.Services.AddScoped<ITelegramStorageProxy, TelegramStorageService>();

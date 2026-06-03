@@ -330,6 +330,11 @@ namespace CourseProject_InventoryManagement.Application.Features.CQRS
             Task<Result<Guid>> DeleteLocalizationResource(DeleteLocalizationResourceCommand command, CancellationToken cancellationToken = default);
         }
 
+        public interface ICreateSupportTicket
+        {
+            Task<Result<UploadedFileResultDto>> CreateSupportTicket(CreateSupportTicketCommand command, CancellationToken cancellationToken = default);
+        }
+
         public interface IUploadFile
         {
             Task<Result<UploadedFileResultDto>> UploadFile(UploadFileCommand command, CancellationToken cancellationToken = default);

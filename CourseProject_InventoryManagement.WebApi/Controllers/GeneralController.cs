@@ -28,8 +28,18 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
         private readonly IDeleteLocalizationResource _deleteLocalizationResource;
         private readonly IUploadFile _uploadFile;
         private readonly ITelegramStorageProxy _telegramProxy;
+        private readonly ICreateSupportTicket _createSupportTicket;
 
-        public GeneralController(IGetDashboardStatistics getDashboardStatistics, IGetLocalizationResources getLocalizationResources, IGetLocalizationResourcesAdminList getLocalizationResourcesAdminList, IUpsertLocalizationResource upsertLocalizationResource, IBulkUpsertLocalizationResources bulkUpsertLocalizationResources, IDeleteLocalizationResource deleteLocalizationResource, IUploadFile uploadFile, ITelegramStorageProxy telegramProxy)
+        public GeneralController(
+            IGetDashboardStatistics getDashboardStatistics, 
+            IGetLocalizationResources getLocalizationResources, 
+            IGetLocalizationResourcesAdminList getLocalizationResourcesAdminList, 
+            IUpsertLocalizationResource upsertLocalizationResource, 
+            IBulkUpsertLocalizationResources bulkUpsertLocalizationResources, 
+            IDeleteLocalizationResource deleteLocalizationResource, 
+            IUploadFile uploadFile, 
+            ITelegramStorageProxy telegramProxy,
+            ICreateSupportTicket createSupportTicket)
         {
             _getDashboardStatistics = getDashboardStatistics;
             _getLocalizationResources = getLocalizationResources;
@@ -39,6 +49,7 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
             _deleteLocalizationResource = deleteLocalizationResource;
             _uploadFile = uploadFile;
             _telegramProxy = telegramProxy;
+            _createSupportTicket = createSupportTicket;
         }
 
         [Authorize]
@@ -108,6 +119,14 @@ namespace CourseProject_InventoryManagement.WebApi.Controllers
                 return Redirect(result.Value);
             }
             return NotFound("Image could not be retrieved from Telegram.");
+        }
+
+        [Authorize]
+        [HttpPost]
+        public async Task<ActionResult<UploadedFileResultDto>> CreateSupportTicket([FromBody] CreateSupportTicketCommand command, CancellationToken cancellationToken)
+        {
+            var result = await _createSupportTicket.CreateSupportTicket(command, cancellationToken);
+            return this.ToActionResult(result);
         }
     }
 }
